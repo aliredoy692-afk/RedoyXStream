@@ -3,23 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>RedoyXStream Ultimate</title>
+    <title>RedoyXStream</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        :root { --primary: #ff2e51; --bg: #0b0b0b; --card: #161616; --text: #eee; --nav-bg: #121212; }
+        :root { --primary: #ff2e51; --bg: #080808; --card: #121212; --text: #ffffff; }
         body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', sans-serif; margin: 0; overflow-x: hidden; padding-bottom: 80px; }
 
-        /* FULL SCREEN SERVER ANIMATION */
+        /* SERVER ANIMATION */
         #serverOverlay {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: black; z-index: 10000; flex-direction: column;
+            background: #000; z-index: 10000; flex-direction: column;
             align-items: center; justify-content: center;
         }
         .server-loader {
-            width: 60px; height: 60px; border: 6px solid #222;
+            width: 70px; height: 70px; border: 6px solid #222;
             border-top: 6px solid var(--primary); border-radius: 50%;
-            animation: spin 1s linear infinite; margin-bottom: 20px;
-            box-shadow: 0 0 20px var(--primary);
+            animation: spin 0.8s linear infinite; margin-bottom: 20px;
+            box-shadow: 0 0 25px var(--primary);
         }
         .server-text {
             font-size: 16px; font-weight: 900; color: white;
@@ -28,71 +28,83 @@
         }
 
         /* TOP BAR */
-        .top-bar { padding: 15px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; background: rgba(11,11,11,0.95); z-index: 1000; }
-        .logo { font-size: 20px; font-weight: 900; color: white; }
+        .top-bar { padding: 15px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; background: rgba(8,8,8,0.95); z-index: 1000; border-bottom: 1px solid #222; }
+        .logo { font-size: 22px; font-weight: 900; color: white; letter-spacing: 0.5px; }
         .logo span { color: var(--primary); }
-        .search-icon { font-size: 20px; color: white; cursor: pointer; }
+        .search-icon { font-size: 22px; color: white; cursor: pointer; }
 
         /* SEARCH OVERLAY */
-        #searchOverlay { display: none; position: fixed; top: 0; left: 0; width: 100%; background: var(--bg); z-index: 2000; padding: 10px; border-bottom: 1px solid #333; }
-        .search-input { width: 90%; background: #222; border: none; padding: 10px; color: white; border-radius: 5px; font-size: 16px; outline: none; }
-        .close-search { color: var(--primary); font-size: 20px; margin-left: 10px; cursor: pointer; }
+        #searchOverlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 2000; justify-content: center; align-items: center; }
+        .search-wrapper { width: 90%; position: relative; }
+        .search-input { width: 100%; background: #222; border: 1px solid var(--primary); padding: 15px; color: white; border-radius: 10px; font-size: 18px; outline: none; }
+        .close-search { position: absolute; right: 15px; top: 18px; color: #888; font-size: 22px; cursor: pointer; }
 
-        /* HERO SLIDER (Updated for many items) */
-        .hero-slider { position: relative; width: 100%; height: 380px; overflow: hidden; mask-image: linear-gradient(to bottom, black 85%, transparent 100%); }
-        .slide { position: absolute; inset: 0; background-size: cover; background-position: center; opacity: 0; transition: opacity 1s, transform 5s; transform: scale(1); }
-        .slide.active { opacity: 1; transform: scale(1.1); } /* Zoom effect */
-        .slide-overlay { position: absolute; bottom: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to top, var(--bg) 0%, transparent 70%); }
+        /* HERO SLIDER */
+        .hero-slider { position: relative; width: 100%; height: 280px; overflow: hidden; margin-bottom: 15px; mask-image: linear-gradient(to bottom, black 85%, transparent 100%); }
+        .slide { position: absolute; inset: 0; background-size: cover; background-position: center; opacity: 0; transition: opacity 1s, transform 6s; transform: scale(1); }
+        .slide.active { opacity: 1; transform: scale(1.1); }
+        .slide-overlay { position: absolute; bottom: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to top, var(--bg) 10%, transparent 80%); }
         .slide-content { position: absolute; bottom: 30px; left: 15px; width: 90%; }
-        .slide-title { font-size: 32px; font-weight: 900; margin-bottom: 10px; text-shadow: 0 2px 10px rgba(0,0,0,0.9); line-height: 1.1; }
-        .slide-meta { font-size: 12px; color: #ccc; margin-bottom: 15px; display: flex; gap: 10px; }
-        .meta-tag { background: rgba(255,255,255,0.2); padding: 3px 10px; border-radius: 4px; backdrop-filter: blur(5px); }
+        .slide-title { font-size: 26px; font-weight: 900; margin-bottom: 10px; text-shadow: 0 2px 8px rgba(0,0,0,1); line-height: 1.2; }
+        .slide-meta { font-size: 11px; color: #ddd; margin-bottom: 15px; display: flex; gap: 10px; font-weight: 700; }
+        .meta-tag { background: var(--primary); color: white; padding: 3px 10px; border-radius: 4px; }
         
         .hero-btns { display: flex; gap: 10px; }
-        .play-btn { background: var(--primary); color: white; border: none; padding: 12px 30px; border-radius: 30px; font-weight: bold; font-size: 14px; display: flex; align-items: center; gap: 8px; cursor: pointer; box-shadow: 0 5px 15px rgba(255, 46, 81, 0.4); }
-        .list-btn { background: rgba(255,255,255,0.15); color: white; border: none; padding: 12px 25px; border-radius: 30px; font-weight: bold; font-size: 14px; cursor: pointer; backdrop-filter: blur(5px); }
+        .play-btn { background: white; color: black; border: none; padding: 10px 25px; border-radius: 50px; font-weight: 900; font-size: 14px; display: flex; align-items: center; gap: 8px; cursor: pointer; }
+        .list-btn { background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.3); padding: 10px 20px; border-radius: 50px; font-weight: 700; font-size: 14px; cursor: pointer; backdrop-filter: blur(5px); }
 
         /* SECTIONS */
-        .section { margin-top: 25px; padding-left: 15px; }
+        .section { margin-top: 30px; padding-left: 15px; }
         .sec-head { display: flex; justify-content: space-between; align-items: center; padding-right: 15px; margin-bottom: 15px; }
-        .sec-title { font-size: 17px; font-weight: 800; border-left: 4px solid var(--primary); padding-left: 10px; }
-        .see-all { font-size: 12px; color: var(--primary); font-weight: bold; cursor: pointer; }
+        .sec-title { font-size: 18px; font-weight: 800; border-left: 4px solid var(--primary); padding-left: 10px; }
+        .see-all { font-size: 12px; color: var(--primary); font-weight: 700; cursor: pointer; text-transform: uppercase; }
         
-        .row { display: flex; gap: 12px; overflow-x: auto; padding-right: 15px; scrollbar-width: none; }
-        .card { min-width: 115px; width: 115px; position: relative; cursor: pointer; }
-        .card img { width: 100%; height: 170px; object-fit: cover; border-radius: 8px; }
-        .card-title { font-size: 12px; margin-top: 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #ccc; font-weight: 600; }
-        .hd-tag { position: absolute; top: 5px; right: 5px; background: var(--primary); color: white; font-size: 9px; padding: 2px 5px; border-radius: 4px; font-weight: 900; box-shadow: 0 2px 5px rgba(0,0,0,0.5); }
-        .rank-badge { position: absolute; top: -5px; left: -5px; background: #000; color: white; font-weight: 900; font-size: 50px; line-height: 1; text-shadow: 2px 2px 0 var(--primary); z-index: 2; font-family: impact, sans-serif; }
+        /* POSTERS */
+        .row { display: flex; gap: 12px; overflow-x: auto; padding-right: 15px; scrollbar-width: none; padding-bottom: 10px; }
+        .card { min-width: 115px; width: 115px; position: relative; cursor: pointer; transition: transform 0.2s; }
+        .card:active { transform: scale(0.95); }
+        .card img { width: 100%; height: 170px; object-fit: cover; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
+        .card-title { font-size: 13px; margin-top: 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #ddd; font-weight: 600; }
+        .hd-tag { position: absolute; top: 6px; right: 6px; background: var(--primary); color: white; font-size: 9px; padding: 2px 5px; border-radius: 3px; font-weight: 900; }
+        .rank-badge { position: absolute; top: -10px; left: -5px; color: white; font-weight: 900; font-size: 50px; line-height: 1; text-shadow: 2px 2px 0 var(--primary); z-index: 2; font-family: impact, sans-serif; -webkit-text-stroke: 1px black; }
+
+        /* GENRE PILLS */
+        .genre-scroll { display: flex; gap: 10px; overflow-x: auto; padding-right: 15px; scrollbar-width: none; margin-top: 5px; }
+        .genre-pill { 
+            background: #1a1a1a; color: #ccc; padding: 10px 25px; border-radius: 30px; 
+            font-weight: 700; font-size: 13px; white-space: nowrap; border: 1px solid #333; cursor: pointer;
+            transition: 0.3s;
+        }
+        .genre-pill.active, .genre-pill:active { background: var(--primary); border-color: var(--primary); color: white; }
 
         /* BOTTOM NAV */
-        .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; background: var(--nav-bg); display: flex; justify-content: space-around; padding: 12px 0; border-top: 1px solid #222; z-index: 5000; }
-        .nav-item { display: flex; flex-direction: column; align-items: center; color: #666; font-size: 10px; cursor: pointer; }
+        .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; background: rgba(10,10,10,0.98); display: flex; justify-content: space-around; padding: 12px 0; border-top: 1px solid #222; z-index: 5000; backdrop-filter: blur(10px); }
+        .nav-item { display: flex; flex-direction: column; align-items: center; color: #666; font-size: 10px; cursor: pointer; font-weight: 600; }
         .nav-item i { font-size: 20px; margin-bottom: 4px; }
         .nav-item.active { color: var(--primary); }
 
         /* VIEWS */
-        .view { display: none; padding-bottom: 20px; }
+        .view { display: none; padding-bottom: 40px; }
         #homeView { display: block; }
         
         #seeAllView { display: none; padding: 15px; }
         .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
-        .loading-text { text-align: center; color: #666; margin-top: 20px; font-size: 12px; }
+        .loading-text { text-align: center; color: #666; margin-top: 30px; font-size: 14px; font-weight: bold; }
 
         /* PLAYER MODAL */
         #playerModal { display: none; position: fixed; inset: 0; background: black; z-index: 7000; flex-direction: column; }
         #stickerBar { position: absolute; top: 0; left: 0; width: 100%; height: 50px; background: #000; z-index: 7002; display: flex; align-items: center; justify-content: center; border-bottom: 1px solid var(--primary); color: var(--primary); font-weight: 900; font-size: 14px; letter-spacing: 1px; }
-        .back-btn { position: absolute; top: 12px; left: 15px; color: white; font-size: 22px; z-index: 7003; cursor: pointer; }
+        .back-btn { position: absolute; top: 12px; left: 15px; color: white; font-size: 24px; z-index: 7003; cursor: pointer; }
         iframe { width: 100%; height: 100%; border: none; }
 
         /* PROFILE */
         .profile-header { padding: 40px 15px; text-align: center; background: #161616; margin-bottom: 20px; }
-        .avatar-circle { width: 80px; height: 80px; background: var(--primary); border-radius: 50%; margin: 0 auto 15px; display: flex; align-items: center; justify-content: center; font-size: 35px; font-weight: bold; color: white; box-shadow: 0 0 20px rgba(255, 46, 81, 0.3); }
-        .auth-btn { background: white; color: black; padding: 10px 25px; border-radius: 25px; border: none; font-weight: bold; margin-top: 10px; }
+        .avatar-circle { width: 80px; height: 80px; background: var(--primary); border-radius: 50%; margin: 0 auto 15px; display: flex; align-items: center; justify-content: center; font-size: 35px; font-weight: bold; color: white; box-shadow: 0 0 15px rgba(255, 46, 81, 0.4); }
+        .auth-btn { background: white; color: black; padding: 10px 30px; border-radius: 30px; border: none; font-weight: 900; margin-top: 15px; font-size: 14px; cursor: pointer; }
 
         /* ANIMATIONS */
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        @keyframes pulse { 0% { opacity: 0.5; } 50% { opacity: 1; } 100% { opacity: 0.5; } }
+        @keyframes pulse { 0% { opacity: 0.6; } 50% { opacity: 1; } 100% { opacity: 0.6; } }
     </style>
 </head>
 <body>
@@ -104,39 +116,43 @@
 
     <div class="top-bar">
         <div class="logo">Redoy<span>X</span></div>
-        <div class="user-area" style="display:flex; align-items:center; gap:15px;">
+        <div class="user-area" style="display:flex; align-items:center; gap:20px;">
             <i class="fas fa-search search-icon" onclick="openSearch()"></i>
-            <div id="userProfileIcon" style="width:25px; height:25px; background:#333; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:bold; cursor:pointer;" onclick="switchTab('profile', document.querySelectorAll('.nav-item')[3])">?</div>
+            <div id="userProfileIcon" style="width:30px; height:30px; background:#333; border: 1px solid var(--primary); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:14px; font-weight:bold; cursor:pointer; color: white;" onclick="switchTab('profile', document.querySelectorAll('.nav-item')[3])">?</div>
         </div>
     </div>
     
     <div id="searchOverlay">
-        <div style="display:flex; align-items:center;">
-            <input type="text" id="searchInput" class="search-input" placeholder="Search Anime (JJK, Naruto)..." onkeyup="if(event.key==='Enter') doSearch()">
+        <div class="search-wrapper">
+            <input type="text" id="searchInput" class="search-input" placeholder="Search Anime (e.g. Naruto)..." onkeyup="if(event.key==='Enter') doSearch()">
             <i class="fas fa-times close-search" onclick="closeSearch()"></i>
         </div>
     </div>
 
     <div id="homeView" class="view">
         <div class="hero-slider" id="heroSlider"></div>
+        
+        <div class="section" style="margin-top: 5px;">
+            <div id="genresArea" class="genre-scroll"></div>
+        </div>
+
         <div id="dynamicSections"></div>
-        <div id="genresArea"></div>
     </div>
 
     <div id="scheduleView" class="view">
         <div class="section">
-            <div class="sec-title" style="margin-bottom:15px;">📅 Today's Releases</div>
+            <div class="sec-title" style="margin-bottom:20px;">📅 Today's Releases</div>
             <div class="grid" id="scheduleGrid"></div>
         </div>
     </div>
 
     <div id="myListView" class="view">
         <div class="section">
-            <div class="sec-title" style="margin-bottom:15px;">❤️ My Favorites</div>
+            <div class="sec-title" style="margin-bottom:20px;">❤️ My Favorites</div>
             <div class="grid" id="myListGrid"></div>
         </div>
         <div class="section">
-            <div class="sec-title" style="margin-bottom:15px;">🕒 Watch History</div>
+            <div class="sec-title" style="margin-bottom:20px;">🕒 Watch History</div>
             <div class="row" id="historyRow"></div>
         </div>
     </div>
@@ -148,20 +164,20 @@
             <button class="auth-btn" id="authBtn" onclick="handleAuth()">Login with Gmail</button>
         </div>
         <div class="section">
-            <div style="padding:15px; background:#222; margin:10px; border-radius:10px;">
-                <div style="font-weight:bold; margin-bottom:5px;">App Version</div>
-                <div style="font-size:12px; color:#888;">RedoyXStream v4.0 Ultimate</div>
+            <div style="padding:20px; background:#1a1a1a; margin-right:15px; border-radius:10px; border: 1px solid #333;">
+                <div style="font-weight:bold; margin-bottom:5px; font-size: 16px;">App Version</div>
+                <div style="font-size:13px; color:#888;">RedoyXStream v7.0 (Strict Security)</div>
             </div>
         </div>
     </div>
 
     <div id="seeAllView">
         <div class="top-bar">
-            <div class="logo" id="viewTitle" style="font-size:16px;">Results</div>
-            <i class="fas fa-arrow-left" onclick="goHome()" style="font-size:20px; cursor:pointer;"></i>
+            <div class="logo" id="viewTitle" style="font-size:18px;">Results</div>
+            <i class="fas fa-arrow-left" onclick="goHome()" style="font-size:24px; cursor:pointer; color:white;"></i>
         </div>
         <div class="grid" id="infiniteGrid" style="padding:10px;"></div>
-        <div id="loadingIndicator" class="loading-text">Scrolling for more...</div>
+        <div id="loadingIndicator" class="loading-text">Loading more...</div>
     </div>
 
     <div class="bottom-nav">
@@ -190,21 +206,20 @@
         const BASE = 'https://api.themoviedb.org/3';
         let currentUrl = ''; let currentPage = 1; let isLoading = false;
         
-        // 🔥 SECTIONS (Updated Titles)
         const sections = [
-            { title: "Top Airing", url: `&sort_by=popularity.desc&air_date.gte=2024-01-01` },
-            { title: "New Episode Releases", url: `&first_air_date.gte=2024-06-01&sort_by=first_air_date.desc` },
-            { title: "Most Favorite", url: `&sort_by=vote_count.desc` },
-            { title: "Top TV Series", url: `&sort_by=vote_average.desc&vote_count.gte=500` },
-            { title: "Most Popular", url: `&sort_by=popularity.desc` }
+            { title: "🔥 Trending Now", url: `&sort_by=popularity.desc` }, 
+            { title: "🎬 Top Anime Movies", type: "movie", url: `&sort_by=revenue.desc` }, 
+            { title: "📺 Top Airing Series", url: `&sort_by=popularity.desc&air_date.gte=2024-01-01` },
+            { title: "⭐ Most Favorite", url: `&sort_by=vote_count.desc` },
+            { title: "🆕 New Releases", url: `&first_air_date.gte=2024-01-01&sort_by=first_air_date.desc` }
         ];
 
         const genres = [
-            {id: 10759, name: "Action"}, {id: 10765, name: "Sci-Fi & Fantasy"}, 
-            {id: 16, name: "Animation"}, {id: 35, name: "Comedy"}, 
-            {id: 18, name: "Drama"}, {id: 9648, name: "Mystery"},
-            {id: 10749, name: "Romance"}, {id: 10751, name: "Family"},
-            {id: 10752, name: "War"}, {id: 80, name: "Crime"}
+            {id: 10759, name: "Action"}, 
+            {id: 10749, name: "Romance"}, 
+            {id: 10765, name: "Isekai"}, 
+            {id: 878, name: "Sci-Fi"}, 
+            {id: 35, name: "Comedy"}
         ];
 
         // --- AUTH ---
@@ -215,7 +230,6 @@
                 const initial = user.charAt(0).toUpperCase();
                 document.getElementById('pAvatar').innerText = initial;
                 document.getElementById('userProfileIcon').innerText = initial;
-                document.getElementById('userProfileIcon').style.background = 'var(--primary)';
                 document.getElementById('authBtn').innerText = "Logout";
                 document.getElementById('authBtn').style.color = "red";
             }
@@ -233,8 +247,8 @@
         function strictFilter(list) {
             return list.filter(a => {
                 if(!a.poster_path) return false;
-                if(!a.genre_ids.includes(16)) return false; 
-                return (a.original_language === 'ja' || a.original_language === 'zh');
+                if(a.genre_ids && !a.genre_ids.includes(16)) return false; 
+                return (a.original_language === 'ja' || a.original_language === 'zh' || a.original_language === 'ko');
             });
         }
 
@@ -242,11 +256,9 @@
         async function loadHome() {
             checkLogin(); renderMyList(); loadHistory(); loadSchedule();
 
-            // 🔥 HERO SLIDER - MANY ULTRA RARE ANIME (20 Items)
-            // Using vote_average desc to get rare high rated ones
             const sliderRes = await fetch(`${BASE}/discover/tv?api_key=${API_KEY}&with_genres=16&sort_by=vote_average.desc&vote_count.gte=300&with_original_language=ja`);
             const sliderData = await sliderRes.json();
-            const safeSlider = strictFilter(sliderData.results).slice(0, 15); // Increased to 15
+            const safeSlider = strictFilter(sliderData.results).slice(0, 10);
             
             const slider = document.getElementById('heroSlider');
             safeSlider.forEach((a, idx) => {
@@ -261,7 +273,7 @@
                             </div>
                             <div class="slide-title">${a.name}</div>
                             <div class="hero-btns">
-                                <button class="play-btn" onclick="openPlayer('${cleanTitle(a.name)}', ${a.id}, '${a.poster_path}')"><i class="fas fa-play"></i> Watch Now</button>
+                                <button class="play-btn" onclick="openPlayer('${cleanTitle(a.name)}', ${a.id}, '${a.poster_path}')"><i class="fas fa-play"></i> Watch</button>
                                 <button class="list-btn" onclick="toggleList(${a.id}, '${a.name.replace(/'/g,"")}', '${a.poster_path}')">+ List</button>
                             </div>
                         </div>
@@ -269,45 +281,45 @@
             });
             startSlider(safeSlider.length);
 
-            // SECTIONS
+            const gArea = document.getElementById('genresArea');
+            let gHtml = '';
+            genres.forEach(g => {
+                gHtml += `<div class="genre-pill" onclick="openSeeAll('&with_genres=${g.id}', '${g.name}')">${g.name}</div>`;
+            });
+            gArea.innerHTML = gHtml;
+
             const sectionArea = document.getElementById('dynamicSections');
             for(const sec of sections) {
-                const res = await fetch(`${BASE}/discover/tv?api_key=${API_KEY}&with_genres=16&with_original_language=ja|zh${sec.url}`);
+                let endpoint = sec.type === 'movie' ? 'movie' : 'tv';
+                let fetchUrl = `${BASE}/discover/${endpoint}?api_key=${API_KEY}&with_genres=16&with_original_language=ja|zh${sec.url}`;
+                
+                const res = await fetch(fetchUrl);
                 const data = await res.json();
-                const safe = strictFilter(data.results);
+                const safe = strictFilter(data.results).slice(0, 20); 
                 
                 if(safe.length > 0) {
                     let html = `
                         <div class="section">
                             <div class="sec-head">
                                 <div class="sec-title">${sec.title}</div>
-                                <div class="see-all" onclick="openSeeAll('${sec.url}', '${sec.title}')">See all</div>
+                                <div class="see-all" onclick="openSeeAll('${sec.url}', '${sec.title}', '${endpoint}')">See all</div>
                             </div>
                             <div class="row">`;
                     safe.forEach((a, i) => {
-                        html += `<div class="card" onclick="openPlayer('${cleanTitle(a.name)}', ${a.id}, '${a.poster_path}')">
-                                    ${sec.title.includes("Top") ? `<div class="rank-badge">${i+1}</div>` : ''}
+                        let title = a.name || a.title;
+                        html += `<div class="card" onclick="openPlayer('${cleanTitle(title)}', ${a.id}, '${a.poster_path}')">
+                                    ${sec.title.includes("Top") || sec.title.includes("Trending") ? `<div class="rank-badge">${i+1}</div>` : ''}
                                     <div class="hd-tag">HD</div>
                                     <img src="https://image.tmdb.org/t/p/w300${a.poster_path}">
-                                    <div class="card-title">${a.name}</div>
+                                    <div class="card-title">${title}</div>
                                  </div>`;
                     });
                     html += `</div></div>`;
                     sectionArea.innerHTML += html;
                 }
             }
-
-            // GENRES
-            const gArea = document.getElementById('genresArea');
-            let gHtml = `<div class="section"><div class="sec-title" style="margin-bottom:15px;">Genres</div><div class="grid">`;
-            genres.forEach(g => {
-                gHtml += `<div style="background:#222; padding:15px; border-radius:8px; text-align:center; font-size:12px; font-weight:bold; cursor:pointer;" onclick="openSeeAll('&with_genres=${g.id}', '${g.name} Anime')">${g.name}</div>`;
-            });
-            gHtml += `</div></div>`;
-            gArea.innerHTML += gHtml;
         }
 
-        // --- PLAYER & ANIMATION ---
         function openPlayer(name, id, poster) {
             if(id) {
                 let hist = JSON.parse(localStorage.getItem('sw_hist') || '[]');
@@ -317,18 +329,16 @@
                 loadHistory();
             }
 
-            // 🔥 SHOW FULL SCREEN SERVER ANIMATION
             const overlay = document.getElementById('serverOverlay');
             overlay.style.display = 'flex';
 
             setTimeout(() => {
-                overlay.style.display = 'none'; // Hide Animation
-                
+                overlay.style.display = 'none';
                 let searchKeyword = name.split(" ").slice(0, 3).join(" ");
                 const encodedName = encodeURIComponent(searchKeyword);
                 document.getElementById('playerModal').style.display = 'flex';
                 document.getElementById('iframe').src = `https://aniwatchtv.to/search?keyword=${encodedName}`;
-            }, 3000); // 3 Seconds Delay
+            }, 3000); 
         }
 
         function closePlayer() {
@@ -336,7 +346,6 @@
             document.getElementById('iframe').src = '';
         }
 
-        // --- MY LIST ---
         function toggleList(id, name, poster) {
             let list = JSON.parse(localStorage.getItem('sw_list') || '[]');
             if(list.some(i => i.id === id)) {
@@ -372,7 +381,6 @@
             });
         }
 
-        // --- SCHEDULE ---
         async function loadSchedule() {
             const today = new Date().toISOString().split('T')[0];
             const res = await fetch(`${BASE}/discover/tv?api_key=${API_KEY}&with_genres=16&air_date.gte=${today}&air_date.lte=${today}&with_original_language=ja|zh`);
@@ -388,14 +396,13 @@
             });
         }
 
-        // --- HELPERS ---
         function startSlider(total) {
             let idx = 0; setInterval(() => {
                 const slides = document.querySelectorAll('.slide');
                 slides.forEach(s => s.classList.remove('active'));
                 idx = (idx + 1) % total;
                 if(document.getElementById(`slide-${idx}`)) document.getElementById(`slide-${idx}`).classList.add('active');
-            }, 3000); // 3s Interval
+            }, 3000); 
         }
         function cleanTitle(name) { return name.split(':')[0].split('(')[0].replace(/Season \d+/gi, '').trim().replace(/'/g, "\\'"); }
         
@@ -407,35 +414,47 @@
             btn.classList.add('active');
         }
 
-        function openSearch() { document.getElementById('searchOverlay').style.display = 'block'; document.getElementById('searchInput').focus(); }
+        function openSearch() { document.getElementById('searchOverlay').style.display = 'flex'; document.getElementById('searchInput').focus(); }
         function closeSearch() { document.getElementById('searchOverlay').style.display = 'none'; }
         function doSearch() { 
             const q = document.getElementById('searchInput').value;
             closeSearch();
-            openSeeAll(`&query=${q}`, `Search: ${q}`);
+            openSeeAll(`&query=${q}`, `Search: ${q}`, 'multi');
         }
 
-        function openSeeAll(url, title) {
+        function openSeeAll(url, title, type = 'tv') {
             document.querySelectorAll('.view').forEach(v => v.style.display = 'none');
             document.getElementById('seeAllView').style.display = 'block';
             document.getElementById('viewTitle').innerText = title;
             document.getElementById('infiniteGrid').innerHTML = '';
-            currentUrl = url; currentPage = 1; loadNextPage();
+            currentUrl = url; 
+            currentPage = 1; 
+            document.getElementById('seeAllView').dataset.type = type; 
+            loadNextPage();
         }
 
         async function loadNextPage() {
             if(isLoading) return; isLoading = true;
             document.getElementById('loadingIndicator').style.display = 'block';
-            let url = currentUrl.includes('query=') 
-                ? `${BASE}/search/tv?api_key=${API_KEY}${currentUrl}&page=${currentPage}`
-                : `${BASE}/discover/tv?api_key=${API_KEY}&with_genres=16&with_original_language=ja|zh${currentUrl}&page=${currentPage}`;
-            const res = await fetch(url); const data = await res.json();
+            
+            let type = document.getElementById('seeAllView').dataset.type || 'tv';
+            let fetchUrl = '';
+
+            if (currentUrl.includes('query=')) {
+                fetchUrl = `${BASE}/search/tv?api_key=${API_KEY}${currentUrl}&page=${currentPage}`;
+            } else {
+                fetchUrl = `${BASE}/discover/${type}?api_key=${API_KEY}&with_genres=16&with_original_language=ja|zh${currentUrl}&page=${currentPage}`;
+            }
+
+            const res = await fetch(fetchUrl); const data = await res.json();
             const safe = strictFilter(data.results);
+            
             safe.forEach(a => {
+                let title = a.name || a.title;
                 document.getElementById('infiniteGrid').innerHTML += 
-                `<div class="card" style="width:100%;" onclick="openPlayer('${cleanTitle(a.name)}', ${a.id}, '${a.poster_path}')">
+                `<div class="card" style="width:100%;" onclick="openPlayer('${cleanTitle(title)}', ${a.id}, '${a.poster_path}')">
                     <img src="https://image.tmdb.org/t/p/w300${a.poster_path}">
-                    <div class="card-title">${a.name}</div>
+                    <div class="card-title">${title}</div>
                 </div>`;
             });
             currentPage++; isLoading = false; document.getElementById('loadingIndicator').style.display = 'none';
