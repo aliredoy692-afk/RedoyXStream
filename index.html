@@ -3,370 +3,451 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>Streaming World Pro</title>
+    <title>RedoyXStream Ultimate</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        :root { --primary: #00f2ff; --bg: #050505; --card: #111; --text: #eee; }
+        :root { --primary: #ff2e51; --bg: #0b0b0b; --card: #161616; --text: #eee; --nav-bg: #121212; }
         body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', sans-serif; margin: 0; overflow-x: hidden; padding-bottom: 80px; }
 
-        /* NAVBAR & LOGIN */
-        .navbar { 
-            padding: 15px; background: rgba(0,0,0,0.95); position: sticky; top: 0; z-index: 1000; 
-            display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #222;
+        /* FULL SCREEN SERVER ANIMATION */
+        #serverOverlay {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: black; z-index: 10000; flex-direction: column;
+            align-items: center; justify-content: center;
         }
-        .logo { font-size: 18px; font-weight: 900; color: white; text-transform: uppercase; text-shadow: 0 0 10px var(--primary); }
+        .server-loader {
+            width: 60px; height: 60px; border: 6px solid #222;
+            border-top: 6px solid var(--primary); border-radius: 50%;
+            animation: spin 1s linear infinite; margin-bottom: 20px;
+            box-shadow: 0 0 20px var(--primary);
+        }
+        .server-text {
+            font-size: 16px; font-weight: 900; color: white;
+            text-transform: uppercase; letter-spacing: 2px;
+            animation: pulse 1.5s infinite ease-in-out; text-align: center;
+        }
+
+        /* TOP BAR */
+        .top-bar { padding: 15px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; background: rgba(11,11,11,0.95); z-index: 1000; }
+        .logo { font-size: 20px; font-weight: 900; color: white; }
         .logo span { color: var(--primary); }
+        .search-icon { font-size: 20px; color: white; cursor: pointer; }
+
+        /* SEARCH OVERLAY */
+        #searchOverlay { display: none; position: fixed; top: 0; left: 0; width: 100%; background: var(--bg); z-index: 2000; padding: 10px; border-bottom: 1px solid #333; }
+        .search-input { width: 90%; background: #222; border: none; padding: 10px; color: white; border-radius: 5px; font-size: 16px; outline: none; }
+        .close-search { color: var(--primary); font-size: 20px; margin-left: 10px; cursor: pointer; }
+
+        /* HERO SLIDER (Updated for many items) */
+        .hero-slider { position: relative; width: 100%; height: 380px; overflow: hidden; mask-image: linear-gradient(to bottom, black 85%, transparent 100%); }
+        .slide { position: absolute; inset: 0; background-size: cover; background-position: center; opacity: 0; transition: opacity 1s, transform 5s; transform: scale(1); }
+        .slide.active { opacity: 1; transform: scale(1.1); } /* Zoom effect */
+        .slide-overlay { position: absolute; bottom: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to top, var(--bg) 0%, transparent 70%); }
+        .slide-content { position: absolute; bottom: 30px; left: 15px; width: 90%; }
+        .slide-title { font-size: 32px; font-weight: 900; margin-bottom: 10px; text-shadow: 0 2px 10px rgba(0,0,0,0.9); line-height: 1.1; }
+        .slide-meta { font-size: 12px; color: #ccc; margin-bottom: 15px; display: flex; gap: 10px; }
+        .meta-tag { background: rgba(255,255,255,0.2); padding: 3px 10px; border-radius: 4px; backdrop-filter: blur(5px); }
         
-        .user-area { display: flex; align-items: center; gap: 10px; }
-        .login-btn { background: #ea4335; color: white; border: none; padding: 5px 12px; border-radius: 4px; font-size: 12px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 5px; }
-        .user-profile { display: none; align-items: center; gap: 8px; font-size: 12px; font-weight: bold; }
-        .user-avatar { width: 30px; height: 30px; background: var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: black; font-weight: bold; }
+        .hero-btns { display: flex; gap: 10px; }
+        .play-btn { background: var(--primary); color: white; border: none; padding: 12px 30px; border-radius: 30px; font-weight: bold; font-size: 14px; display: flex; align-items: center; gap: 8px; cursor: pointer; box-shadow: 0 5px 15px rgba(255, 46, 81, 0.4); }
+        .list-btn { background: rgba(255,255,255,0.15); color: white; border: none; padding: 12px 25px; border-radius: 30px; font-weight: bold; font-size: 14px; cursor: pointer; backdrop-filter: blur(5px); }
 
-        .search-container { margin: 10px 15px; background: #222; padding: 8px 15px; border-radius: 25px; border: 1px solid #333; display: flex; align-items: center; }
-        .search-box { background: transparent; border: none; color: white; width: 100%; outline: none; font-size: 14px; }
-
-        /* HERO SLIDER */
-        .hero-slider { position: relative; width: 100%; height: 260px; overflow: hidden; margin-bottom: 20px; }
-        .slide { position: absolute; inset: 0; background-size: cover; background-position: center; opacity: 0; transition: opacity 1s; }
-        .slide.active { opacity: 1; }
-        .slide-content { position: absolute; bottom: 0; left: 0; width: 100%; background: linear-gradient(to top, var(--bg), transparent); padding: 20px; }
-        .slide-title { font-size: 22px; font-weight: bold; text-shadow: 2px 2px 5px black; margin-bottom: 10px; }
-        .watch-btn { background: var(--primary); color: black; border: none; padding: 8px 20px; font-weight: bold; cursor: pointer; border-radius: 20px; }
-
-        /* SCHEDULE & HISTORY */
-        .special-row { display: flex; gap: 10px; overflow-x: auto; padding: 0 15px 15px; scrollbar-width: none; }
-        .sched-card { min-width: 140px; background: #1a1a1a; padding: 10px; border-radius: 8px; border-left: 3px solid var(--primary); }
-        .sched-date { font-size: 10px; color: var(--primary); margin-bottom: 5px; font-weight: bold; }
-        .sched-title { font-size: 12px; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-
-        /* CATEGORIES */
-        .section { margin-bottom: 30px; }
-        .sec-head { display: flex; justify-content: space-between; padding: 0 15px 10px; align-items: center; }
-        .sec-title { font-size: 16px; font-weight: bold; border-left: 4px solid var(--primary); padding-left: 10px; color: var(--primary); }
-        .see-all { font-size: 11px; color: #888; cursor: pointer; font-weight: bold; letter-spacing: 1px; }
+        /* SECTIONS */
+        .section { margin-top: 25px; padding-left: 15px; }
+        .sec-head { display: flex; justify-content: space-between; align-items: center; padding-right: 15px; margin-bottom: 15px; }
+        .sec-title { font-size: 17px; font-weight: 800; border-left: 4px solid var(--primary); padding-left: 10px; }
+        .see-all { font-size: 12px; color: var(--primary); font-weight: bold; cursor: pointer; }
         
-        .row { display: flex; gap: 10px; overflow-x: auto; padding: 0 15px; scrollbar-width: none; min-height: 180px; }
-        .card { min-width: 115px; position: relative; cursor: pointer; transition: 0.2s; }
-        .card:active { transform: scale(0.95); }
-        .card img { width: 100%; height: 165px; object-fit: cover; border-radius: 6px; }
+        .row { display: flex; gap: 12px; overflow-x: auto; padding-right: 15px; scrollbar-width: none; }
+        .card { min-width: 115px; width: 115px; position: relative; cursor: pointer; }
+        .card img { width: 100%; height: 170px; object-fit: cover; border-radius: 8px; }
+        .card-title { font-size: 12px; margin-top: 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #ccc; font-weight: 600; }
+        .hd-tag { position: absolute; top: 5px; right: 5px; background: var(--primary); color: white; font-size: 9px; padding: 2px 5px; border-radius: 4px; font-weight: 900; box-shadow: 0 2px 5px rgba(0,0,0,0.5); }
+        .rank-badge { position: absolute; top: -5px; left: -5px; background: #000; color: white; font-weight: 900; font-size: 50px; line-height: 1; text-shadow: 2px 2px 0 var(--primary); z-index: 2; font-family: impact, sans-serif; }
+
+        /* BOTTOM NAV */
+        .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; background: var(--nav-bg); display: flex; justify-content: space-around; padding: 12px 0; border-top: 1px solid #222; z-index: 5000; }
+        .nav-item { display: flex; flex-direction: column; align-items: center; color: #666; font-size: 10px; cursor: pointer; }
+        .nav-item i { font-size: 20px; margin-bottom: 4px; }
+        .nav-item.active { color: var(--primary); }
+
+        /* VIEWS */
+        .view { display: none; padding-bottom: 20px; }
+        #homeView { display: block; }
         
-        /* SEE ALL VIEW */
         #seeAllView { display: none; padding: 15px; }
         .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
         .loading-text { text-align: center; color: #666; margin-top: 20px; font-size: 12px; }
 
         /* PLAYER MODAL */
-        #playerModal { display: none; position: fixed; inset: 0; background: var(--bg); z-index: 5000; flex-direction: column; }
-        .video-box { flex: 1; position: relative; width: 100%; height: 100%; }
-        
-        #stickerBar {
-            position: absolute; top: 0; left: 0; width: 100%; height: 60px;
-            background: #050505; z-index: 6002; display: flex; align-items: center; justify-content: center;
-            border-bottom: 2px solid var(--primary); font-weight: bold; color: var(--primary);
-            text-transform: uppercase; letter-spacing: 2px; font-size: 12px;
-        }
-        .back-btn { position: absolute; top: 15px; left: 15px; color: white; font-size: 24px; z-index: 6003; cursor: pointer; background: rgba(0,0,0,0.5); padding: 5px; border-radius: 50%; }
-        iframe { width: 100%; height: 100%; border: none; background: #000; }
+        #playerModal { display: none; position: fixed; inset: 0; background: black; z-index: 7000; flex-direction: column; }
+        #stickerBar { position: absolute; top: 0; left: 0; width: 100%; height: 50px; background: #000; z-index: 7002; display: flex; align-items: center; justify-content: center; border-bottom: 1px solid var(--primary); color: var(--primary); font-weight: 900; font-size: 14px; letter-spacing: 1px; }
+        .back-btn { position: absolute; top: 12px; left: 15px; color: white; font-size: 22px; z-index: 7003; cursor: pointer; }
+        iframe { width: 100%; height: 100%; border: none; }
+
+        /* PROFILE */
+        .profile-header { padding: 40px 15px; text-align: center; background: #161616; margin-bottom: 20px; }
+        .avatar-circle { width: 80px; height: 80px; background: var(--primary); border-radius: 50%; margin: 0 auto 15px; display: flex; align-items: center; justify-content: center; font-size: 35px; font-weight: bold; color: white; box-shadow: 0 0 20px rgba(255, 46, 81, 0.3); }
+        .auth-btn { background: white; color: black; padding: 10px 25px; border-radius: 25px; border: none; font-weight: bold; margin-top: 10px; }
+
+        /* ANIMATIONS */
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        @keyframes pulse { 0% { opacity: 0.5; } 50% { opacity: 1; } 100% { opacity: 0.5; } }
     </style>
 </head>
 <body>
 
-    <div class="navbar">
-        <div class="logo">Stream<span>Pro</span></div>
-        <div class="user-area">
-            <button id="loginBtn" class="login-btn" onclick="googleLogin()">
-                <i class="fab fa-google"></i> Login
-            </button>
-            <div id="userProfile" class="user-profile">
-                <div class="user-avatar" id="userAvatar">U</div>
-                <span id="userName">User</span>
-                <i class="fas fa-sign-out-alt" onclick="logout()" style="margin-left:5px; cursor:pointer; color:#666;"></i>
-            </div>
+    <div id="serverOverlay">
+        <div class="server-loader"></div>
+        <div class="server-text">Connecting to<br>RedoyXStream Ultimate...</div>
+    </div>
+
+    <div class="top-bar">
+        <div class="logo">Redoy<span>X</span></div>
+        <div class="user-area" style="display:flex; align-items:center; gap:15px;">
+            <i class="fas fa-search search-icon" onclick="openSearch()"></i>
+            <div id="userProfileIcon" style="width:25px; height:25px; background:#333; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:bold; cursor:pointer;" onclick="switchTab('profile', document.querySelectorAll('.nav-item')[3])">?</div>
+        </div>
+    </div>
+    
+    <div id="searchOverlay">
+        <div style="display:flex; align-items:center;">
+            <input type="text" id="searchInput" class="search-input" placeholder="Search Anime (JJK, Naruto)..." onkeyup="if(event.key==='Enter') doSearch()">
+            <i class="fas fa-times close-search" onclick="closeSearch()"></i>
         </div>
     </div>
 
-    <div class="search-container">
-        <i class="fas fa-search" style="color:#666; margin-right:10px;"></i>
-        <input type="text" id="searchInput" class="search-box" placeholder="Search Anime (e.g. Naruto)..." onkeyup="if(event.key==='Enter') doSearch()">
+    <div id="homeView" class="view">
+        <div class="hero-slider" id="heroSlider"></div>
+        <div id="dynamicSections"></div>
+        <div id="genresArea"></div>
     </div>
 
-    <div id="homeView">
-        <div class="hero-slider" id="heroSlider"></div>
+    <div id="scheduleView" class="view">
+        <div class="section">
+            <div class="sec-title" style="margin-bottom:15px;">📅 Today's Releases</div>
+            <div class="grid" id="scheduleGrid"></div>
+        </div>
+    </div>
 
-        <div id="historySection" class="section" style="display:none;">
-            <div class="sec-head"><div class="sec-title">🕒 Continue Watching</div></div>
+    <div id="myListView" class="view">
+        <div class="section">
+            <div class="sec-title" style="margin-bottom:15px;">❤️ My Favorites</div>
+            <div class="grid" id="myListGrid"></div>
+        </div>
+        <div class="section">
+            <div class="sec-title" style="margin-bottom:15px;">🕒 Watch History</div>
             <div class="row" id="historyRow"></div>
         </div>
+    </div>
 
+    <div id="profileView" class="view">
+        <div class="profile-header">
+            <div class="avatar-circle" id="pAvatar">?</div>
+            <h2 id="pName">Guest User</h2>
+            <button class="auth-btn" id="authBtn" onclick="handleAuth()">Login with Gmail</button>
+        </div>
         <div class="section">
-            <div class="sec-head"><div class="sec-title">📅 Airing Schedule (Today)</div></div>
-            <div class="special-row" id="scheduleRow">
-                <div style="padding:10px; color:#666; font-size:12px;">Loading schedule...</div>
+            <div style="padding:15px; background:#222; margin:10px; border-radius:10px;">
+                <div style="font-weight:bold; margin-bottom:5px;">App Version</div>
+                <div style="font-size:12px; color:#888;">RedoyXStream v4.0 Ultimate</div>
             </div>
         </div>
-
-        <div id="categoriesArea"></div>
     </div>
 
     <div id="seeAllView">
-        <div style="display:flex; justify-content:space-between; margin-bottom:15px; align-items:center;">
-            <h2 id="viewTitle" style="margin:0; font-size:16px; color:var(--primary); font-weight:bold;">All Anime</h2>
-            <button onclick="goHome()" style="background:#222; color:white; border:none; padding:6px 15px; border-radius:20px; font-size:12px;">BACK</button>
+        <div class="top-bar">
+            <div class="logo" id="viewTitle" style="font-size:16px;">Results</div>
+            <i class="fas fa-arrow-left" onclick="goHome()" style="font-size:20px; cursor:pointer;"></i>
         </div>
-        <div class="grid" id="infiniteGrid"></div>
+        <div class="grid" id="infiniteGrid" style="padding:10px;"></div>
         <div id="loadingIndicator" class="loading-text">Scrolling for more...</div>
     </div>
 
-    <div id="playerModal">
-        <div class="video-box">
-            <i class="fas fa-arrow-left back-btn" onclick="closePlayer()"></i>
-            <div id="stickerBar">USER PLEASE SCROLL</div>
-            <iframe id="iframe" src="" allowfullscreen sandbox="allow-scripts allow-same-origin allow-forms"></iframe>
+    <div class="bottom-nav">
+        <div class="nav-item active" onclick="switchTab('home', this)">
+            <i class="fas fa-home"></i> Home
         </div>
+        <div class="nav-item" onclick="switchTab('schedule', this)">
+            <i class="fas fa-calendar-alt"></i> Schedule
+        </div>
+        <div class="nav-item" onclick="switchTab('mylist', this)">
+            <i class="fas fa-bookmark"></i> My List
+        </div>
+        <div class="nav-item" onclick="switchTab('profile', this)">
+            <i class="fas fa-user"></i> Profile
+        </div>
+    </div>
+
+    <div id="playerModal">
+        <div id="stickerBar">DEAR USER PLEASE SCROLL 🥰</div>
+        <i class="fas fa-arrow-left back-btn" onclick="closePlayer()"></i>
+        <iframe id="iframe" src="" allowfullscreen sandbox="allow-scripts allow-same-origin allow-forms"></iframe>
     </div>
 
     <script>
         const API_KEY = '15d2ea6d0dc1d476efbca3eba2b9bbfb';
         const BASE = 'https://api.themoviedb.org/3';
-        let currentUrl = '';
-        let currentPage = 1;
-        let isLoading = false;
-
-        // 🔥 10 SOLID CATEGORIES
-        const genres = [
-            { title: "🔥 Top Airing Now", url: `&sort_by=popularity.desc&air_date.gte=2024-01-01` },
-            { title: "🆕 New Releases", url: `&first_air_date.gte=2024-01-01&sort_by=first_air_date.desc` },
-            { title: "💎 Ultra Rare Classics", url: `&sort_by=vote_average.desc&vote_count.gte=300` },
-            { title: "⚔️ Shonen Action", url: `&with_genres=28,16&with_keywords=6075` }, // Action + Anime
-            { title: "🧙 Isekai & Magic", url: `&with_genres=10765&with_keywords=209936` }, // Fantasy + Isekai tag
-            { title: "❤️ Romance & School", url: `&with_genres=10749,16` },
-            { title: "👻 Horror & Thriller", url: `&with_genres=9648,16` },
-            { title: "🤖 Sci-Fi & Mecha", url: `&with_genres=878,16` },
-            { title: "🎭 Slice of Life", url: `&with_genres=10751,16` },
-            { title: "🩸 Dark Fantasy", url: `&with_keywords=9951` }
+        let currentUrl = ''; let currentPage = 1; let isLoading = false;
+        
+        // 🔥 SECTIONS (Updated Titles)
+        const sections = [
+            { title: "Top Airing", url: `&sort_by=popularity.desc&air_date.gte=2024-01-01` },
+            { title: "New Episode Releases", url: `&first_air_date.gte=2024-06-01&sort_by=first_air_date.desc` },
+            { title: "Most Favorite", url: `&sort_by=vote_count.desc` },
+            { title: "Top TV Series", url: `&sort_by=vote_average.desc&vote_count.gte=500` },
+            { title: "Most Popular", url: `&sort_by=popularity.desc` }
         ];
 
-        // --- AUTH SIMULATION ---
+        const genres = [
+            {id: 10759, name: "Action"}, {id: 10765, name: "Sci-Fi & Fantasy"}, 
+            {id: 16, name: "Animation"}, {id: 35, name: "Comedy"}, 
+            {id: 18, name: "Drama"}, {id: 9648, name: "Mystery"},
+            {id: 10749, name: "Romance"}, {id: 10751, name: "Family"},
+            {id: 10752, name: "War"}, {id: 80, name: "Crime"}
+        ];
+
+        // --- AUTH ---
         function checkLogin() {
             const user = localStorage.getItem('sw_user');
             if(user) {
-                document.getElementById('loginBtn').style.display = 'none';
-                document.getElementById('userProfile').style.display = 'flex';
-                document.getElementById('userName').innerText = user;
-                document.getElementById('userAvatar').innerText = user.charAt(0).toUpperCase();
+                document.getElementById('pName').innerText = user;
+                const initial = user.charAt(0).toUpperCase();
+                document.getElementById('pAvatar').innerText = initial;
+                document.getElementById('userProfileIcon').innerText = initial;
+                document.getElementById('userProfileIcon').style.background = 'var(--primary)';
+                document.getElementById('authBtn').innerText = "Logout";
+                document.getElementById('authBtn').style.color = "red";
             }
         }
-        function googleLogin() {
-            const name = prompt("Enter your Gmail name for simulation:");
-            if(name) {
-                localStorage.setItem('sw_user', name);
-                checkLogin();
-            }
-        }
-        function logout() {
-            localStorage.removeItem('sw_user');
-            location.reload();
-        }
-
-        // --- WATCH HISTORY ---
-        function addToHistory(anime) {
-            let hist = JSON.parse(localStorage.getItem('sw_history') || '[]');
-            // Remove duplicate if exists
-            hist = hist.filter(h => h.id !== anime.id);
-            // Add to front
-            hist.unshift(anime);
-            // Limit to 10
-            if(hist.length > 10) hist.pop();
-            localStorage.setItem('sw_history', JSON.stringify(hist));
-            loadHistory();
-        }
-
-        function loadHistory() {
-            const hist = JSON.parse(localStorage.getItem('sw_history') || '[]');
-            const row = document.getElementById('historyRow');
-            const sec = document.getElementById('historySection');
-            
-            if(hist.length > 0) {
-                sec.style.display = 'block';
-                row.innerHTML = '';
-                hist.forEach(a => {
-                    row.innerHTML += `<div class="card" onclick="openAniWatch('${cleanTitle(a.name)}', ${a.id}, '${a.poster_path}')">
-                                        <img src="https://image.tmdb.org/t/p/w300${a.poster_path}">
-                                      </div>`;
-                });
-            }
-        }
-
-        // --- SCHEDULE ---
-        async function loadSchedule() {
-            // Get Anime airing today (using discovery with air_date)
-            const today = new Date().toISOString().split('T')[0];
-            const res = await fetch(`${BASE}/discover/tv?api_key=${API_KEY}&with_genres=16&with_original_language=ja&air_date.gte=${today}&air_date.lte=${today}&sort_by=popularity.desc`);
-            const data = await res.json();
-            const row = document.getElementById('scheduleRow');
-            
-            if(data.results.length > 0) {
-                row.innerHTML = '';
-                data.results.forEach(a => {
-                    row.innerHTML += `
-                        <div class="sched-card" onclick="openAniWatch('${cleanTitle(a.name)}', ${a.id}, '${a.poster_path}')">
-                            <div class="sched-date">TODAY</div>
-                            <div class="sched-title">${a.name}</div>
-                        </div>`;
-                });
+        function handleAuth() {
+            if(localStorage.getItem('sw_user')) {
+                localStorage.removeItem('sw_user'); location.reload();
             } else {
-                row.innerHTML = '<div style="padding:10px; color:#666;">No major releases today.</div>';
+                const name = prompt("Enter Gmail Name:");
+                if(name) { localStorage.setItem('sw_user', name); checkLogin(); }
             }
         }
 
-        // --- MAIN LOADER ---
-        // 🔥 Strict Filter Function (No Movies/Drama)
-        function strictAnimeFilter(list) {
+        // --- STRICT FILTER ---
+        function strictFilter(list) {
             return list.filter(a => {
-                if (!a.poster_path) return false;
-                if (a.original_language !== 'ja') return false; // Must be JP
-                if (a.origin_country && !a.origin_country.includes('JP')) return false; // Must be JP Country
-                return true;
+                if(!a.poster_path) return false;
+                if(!a.genre_ids.includes(16)) return false; 
+                return (a.original_language === 'ja' || a.original_language === 'zh');
             });
         }
 
+        // --- CORE ---
         async function loadHome() {
-            checkLogin();
-            loadHistory();
-            loadSchedule();
+            checkLogin(); renderMyList(); loadHistory(); loadSchedule();
 
-            // Slider
-            const sliderRes = await fetch(`${BASE}/discover/tv?api_key=${API_KEY}&with_genres=16&with_original_language=ja&sort_by=vote_count.desc`);
+            // 🔥 HERO SLIDER - MANY ULTRA RARE ANIME (20 Items)
+            // Using vote_average desc to get rare high rated ones
+            const sliderRes = await fetch(`${BASE}/discover/tv?api_key=${API_KEY}&with_genres=16&sort_by=vote_average.desc&vote_count.gte=300&with_original_language=ja`);
             const sliderData = await sliderRes.json();
+            const safeSlider = strictFilter(sliderData.results).slice(0, 15); // Increased to 15
+            
             const slider = document.getElementById('heroSlider');
-            const safeSlider = strictAnimeFilter(sliderData.results);
-
-            safeSlider.slice(0, 5).forEach((a, idx) => {
+            safeSlider.forEach((a, idx) => {
                 slider.innerHTML += `
                     <div class="slide ${idx===0?'active':''}" id="slide-${idx}" style="background-image:url('https://image.tmdb.org/t/p/original${a.backdrop_path}')">
+                        <div class="slide-overlay"></div>
                         <div class="slide-content">
+                            <div class="slide-meta">
+                                <span class="meta-tag" style="background:var(--primary); color:white; font-weight:bold;">TRENDING</span>
+                                <span class="meta-tag">Ultra Rare</span>
+                                <span class="meta-tag">⭐ ${a.vote_average.toFixed(1)}</span>
+                            </div>
                             <div class="slide-title">${a.name}</div>
-                            <button class="watch-btn" onclick="openAniWatch('${cleanTitle(a.name)}', ${a.id}, '${a.poster_path}')">WATCH NOW</button>
+                            <div class="hero-btns">
+                                <button class="play-btn" onclick="openPlayer('${cleanTitle(a.name)}', ${a.id}, '${a.poster_path}')"><i class="fas fa-play"></i> Watch Now</button>
+                                <button class="list-btn" onclick="toggleList(${a.id}, '${a.name.replace(/'/g,"")}', '${a.poster_path}')">+ List</button>
+                            </div>
                         </div>
                     </div>`;
             });
-            startSlider(5);
+            startSlider(safeSlider.length);
 
-            // Categories
-            const area = document.getElementById('categoriesArea');
-            for (const g of genres) {
-                const res = await fetch(`${BASE}/discover/tv?api_key=${API_KEY}&with_genres=16&with_original_language=ja${g.url}&page=1`);
+            // SECTIONS
+            const sectionArea = document.getElementById('dynamicSections');
+            for(const sec of sections) {
+                const res = await fetch(`${BASE}/discover/tv?api_key=${API_KEY}&with_genres=16&with_original_language=ja|zh${sec.url}`);
                 const data = await res.json();
-                const safeList = strictAnimeFilter(data.results);
-
-                if (safeList.length > 0) {
+                const safe = strictFilter(data.results);
+                
+                if(safe.length > 0) {
                     let html = `
                         <div class="section">
                             <div class="sec-head">
-                                <div class="sec-title">${g.title}</div>
-                                <div class="see-all" onclick="openSeeAll('${g.url}', '${g.title}')">SEE ALL</div>
+                                <div class="sec-title">${sec.title}</div>
+                                <div class="see-all" onclick="openSeeAll('${sec.url}', '${sec.title}')">See all</div>
                             </div>
                             <div class="row">`;
-                    
-                    safeList.forEach(a => {
-                        html += `<div class="card" onclick="openAniWatch('${cleanTitle(a.name)}', ${a.id}, '${a.poster_path}')">
+                    safe.forEach((a, i) => {
+                        html += `<div class="card" onclick="openPlayer('${cleanTitle(a.name)}', ${a.id}, '${a.poster_path}')">
+                                    ${sec.title.includes("Top") ? `<div class="rank-badge">${i+1}</div>` : ''}
+                                    <div class="hd-tag">HD</div>
                                     <img src="https://image.tmdb.org/t/p/w300${a.poster_path}">
+                                    <div class="card-title">${a.name}</div>
                                  </div>`;
                     });
                     html += `</div></div>`;
-                    area.innerHTML += html;
+                    sectionArea.innerHTML += html;
                 }
             }
+
+            // GENRES
+            const gArea = document.getElementById('genresArea');
+            let gHtml = `<div class="section"><div class="sec-title" style="margin-bottom:15px;">Genres</div><div class="grid">`;
+            genres.forEach(g => {
+                gHtml += `<div style="background:#222; padding:15px; border-radius:8px; text-align:center; font-size:12px; font-weight:bold; cursor:pointer;" onclick="openSeeAll('&with_genres=${g.id}', '${g.name} Anime')">${g.name}</div>`;
+            });
+            gHtml += `</div></div>`;
+            gArea.innerHTML += gHtml;
         }
 
-        function startSlider(total) {
-            let idx = 0;
-            setInterval(() => {
-                document.querySelectorAll('.slide').forEach(s => s.classList.remove('active'));
-                idx = (idx + 1) % total;
-                document.getElementById(`slide-${idx}`).classList.add('active');
-            }, 3000);
-        }
-
-        // --- SEE ALL & INFINITE ---
-        function openSeeAll(url, title) {
-            document.getElementById('homeView').style.display = 'none';
-            document.getElementById('seeAllView').style.display = 'block';
-            document.getElementById('viewTitle').innerText = title;
-            document.getElementById('infiniteGrid').innerHTML = '';
-            currentUrl = url;
-            currentPage = 1;
-            loadNextPage();
-        }
-
-        async function loadNextPage() {
-            if (isLoading) return;
-            isLoading = true;
-            document.getElementById('loadingIndicator').style.display = 'block';
-
-            let fetchUrl = currentUrl.includes('query=') 
-                ? `${BASE}/search/tv?api_key=${API_KEY}${currentUrl}&page=${currentPage}`
-                : `${BASE}/discover/tv?api_key=${API_KEY}&with_genres=16&with_original_language=ja${currentUrl}&page=${currentPage}`;
-
-            try {
-                const res = await fetch(fetchUrl);
-                const data = await res.json();
-                const grid = document.getElementById('infiniteGrid');
-                const safeList = strictAnimeFilter(data.results);
-
-                safeList.forEach(a => {
-                    grid.innerHTML += `<div class="card" onclick="openAniWatch('${cleanTitle(a.name)}', ${a.id}, '${a.poster_path}')">
-                                        <img src="https://image.tmdb.org/t/p/w300${a.poster_path}">
-                                       </div>`;
-                });
-                currentPage++;
-            } catch (e) { console.log("End"); }
-            
-            isLoading = false;
-            document.getElementById('loadingIndicator').style.display = 'none';
-        }
-
-        window.addEventListener('scroll', () => {
-            if(document.getElementById('seeAllView').style.display === 'block') {
-                if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 500) {
-                    loadNextPage();
-                }
+        // --- PLAYER & ANIMATION ---
+        function openPlayer(name, id, poster) {
+            if(id) {
+                let hist = JSON.parse(localStorage.getItem('sw_hist') || '[]');
+                hist = hist.filter(h => h.id !== id);
+                hist.unshift({id, name, poster});
+                localStorage.setItem('sw_hist', JSON.stringify(hist));
+                loadHistory();
             }
-        });
 
-        function goHome() {
-            document.getElementById('seeAllView').style.display = 'none';
-            document.getElementById('homeView').style.display = 'block';
-        }
+            // 🔥 SHOW FULL SCREEN SERVER ANIMATION
+            const overlay = document.getElementById('serverOverlay');
+            overlay.style.display = 'flex';
 
-        function doSearch() {
-            const q = document.getElementById('searchInput').value;
-            openSeeAll(`&query=${q}`, `Search: ${q}`);
-        }
-
-        function cleanTitle(name) {
-            return name.split(':')[0].split('(')[0].replace(/Season \d+/gi, '').trim().replace(/'/g, "\\'");
-        }
-
-        // 🔥 PLAYER & HISTORY SAVE
-        function openAniWatch(name, id, poster) {
-            // Save to history
-            if(id && poster) addToHistory({ id: id, name: name, poster_path: poster });
-
-            let searchKeyword = name.split(" ").slice(0, 3).join(" ");
-            const encodedName = encodeURIComponent(searchKeyword);
-            const url = `https://aniwatchtv.to/search?keyword=${encodedName}`;
-            
-            document.getElementById('playerModal').style.display = 'flex';
-            document.getElementById('iframe').src = url;
+            setTimeout(() => {
+                overlay.style.display = 'none'; // Hide Animation
+                
+                let searchKeyword = name.split(" ").slice(0, 3).join(" ");
+                const encodedName = encodeURIComponent(searchKeyword);
+                document.getElementById('playerModal').style.display = 'flex';
+                document.getElementById('iframe').src = `https://aniwatchtv.to/search?keyword=${encodedName}`;
+            }, 3000); // 3 Seconds Delay
         }
 
         function closePlayer() {
             document.getElementById('playerModal').style.display = 'none';
             document.getElementById('iframe').src = '';
-            loadHistory(); // Refresh history view
         }
 
+        // --- MY LIST ---
+        function toggleList(id, name, poster) {
+            let list = JSON.parse(localStorage.getItem('sw_list') || '[]');
+            if(list.some(i => i.id === id)) {
+                list = list.filter(i => i.id !== id);
+                alert("Removed from My List");
+            } else {
+                list.push({id, name, poster});
+                alert("Added to My List");
+            }
+            localStorage.setItem('sw_list', JSON.stringify(list));
+            renderMyList();
+        }
+        function renderMyList() {
+            const list = JSON.parse(localStorage.getItem('sw_list') || '[]');
+            const grid = document.getElementById('myListGrid');
+            grid.innerHTML = '';
+            list.forEach(a => {
+                grid.innerHTML += `<div class="card" style="width:100%;" onclick="openPlayer('${cleanTitle(a.name)}', ${a.id}, '${a.poster}')">
+                    <img src="https://image.tmdb.org/t/p/w300${a.poster}">
+                    <div class="card-title">${a.name}</div>
+                </div>`;
+            });
+        }
+        function loadHistory() {
+            const list = JSON.parse(localStorage.getItem('sw_hist') || '[]');
+            const row = document.getElementById('historyRow');
+            row.innerHTML = '';
+            list.forEach(a => {
+                row.innerHTML += `<div class="card" onclick="openPlayer('${cleanTitle(a.name)}', ${a.id}, '${a.poster}')">
+                    <img src="https://image.tmdb.org/t/p/w300${a.poster}">
+                    <div class="card-title">${a.name}</div>
+                </div>`;
+            });
+        }
+
+        // --- SCHEDULE ---
+        async function loadSchedule() {
+            const today = new Date().toISOString().split('T')[0];
+            const res = await fetch(`${BASE}/discover/tv?api_key=${API_KEY}&with_genres=16&air_date.gte=${today}&air_date.lte=${today}&with_original_language=ja|zh`);
+            const data = await res.json();
+            const grid = document.getElementById('scheduleGrid');
+            grid.innerHTML = '';
+            data.results.forEach(a => {
+                grid.innerHTML += `<div class="card" style="width:100%;" onclick="openPlayer('${cleanTitle(a.name)}', ${a.id}, '${a.poster_path}')">
+                    <div class="hd-tag">NEW</div>
+                    <img src="https://image.tmdb.org/t/p/w300${a.poster_path}">
+                    <div class="card-title">${a.name}</div>
+                </div>`;
+            });
+        }
+
+        // --- HELPERS ---
+        function startSlider(total) {
+            let idx = 0; setInterval(() => {
+                const slides = document.querySelectorAll('.slide');
+                slides.forEach(s => s.classList.remove('active'));
+                idx = (idx + 1) % total;
+                if(document.getElementById(`slide-${idx}`)) document.getElementById(`slide-${idx}`).classList.add('active');
+            }, 3000); // 3s Interval
+        }
+        function cleanTitle(name) { return name.split(':')[0].split('(')[0].replace(/Season \d+/gi, '').trim().replace(/'/g, "\\'"); }
+        
+        function switchTab(tab, btn) {
+            document.querySelectorAll('.view').forEach(v => v.style.display = 'none');
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            document.getElementById('seeAllView').style.display = 'none';
+            document.getElementById(tab + 'View').style.display = 'block';
+            btn.classList.add('active');
+        }
+
+        function openSearch() { document.getElementById('searchOverlay').style.display = 'block'; document.getElementById('searchInput').focus(); }
+        function closeSearch() { document.getElementById('searchOverlay').style.display = 'none'; }
+        function doSearch() { 
+            const q = document.getElementById('searchInput').value;
+            closeSearch();
+            openSeeAll(`&query=${q}`, `Search: ${q}`);
+        }
+
+        function openSeeAll(url, title) {
+            document.querySelectorAll('.view').forEach(v => v.style.display = 'none');
+            document.getElementById('seeAllView').style.display = 'block';
+            document.getElementById('viewTitle').innerText = title;
+            document.getElementById('infiniteGrid').innerHTML = '';
+            currentUrl = url; currentPage = 1; loadNextPage();
+        }
+
+        async function loadNextPage() {
+            if(isLoading) return; isLoading = true;
+            document.getElementById('loadingIndicator').style.display = 'block';
+            let url = currentUrl.includes('query=') 
+                ? `${BASE}/search/tv?api_key=${API_KEY}${currentUrl}&page=${currentPage}`
+                : `${BASE}/discover/tv?api_key=${API_KEY}&with_genres=16&with_original_language=ja|zh${currentUrl}&page=${currentPage}`;
+            const res = await fetch(url); const data = await res.json();
+            const safe = strictFilter(data.results);
+            safe.forEach(a => {
+                document.getElementById('infiniteGrid').innerHTML += 
+                `<div class="card" style="width:100%;" onclick="openPlayer('${cleanTitle(a.name)}', ${a.id}, '${a.poster_path}')">
+                    <img src="https://image.tmdb.org/t/p/w300${a.poster_path}">
+                    <div class="card-title">${a.name}</div>
+                </div>`;
+            });
+            currentPage++; isLoading = false; document.getElementById('loadingIndicator').style.display = 'none';
+        }
+
+        window.addEventListener('scroll', () => {
+            if(document.getElementById('seeAllView').style.display === 'block') {
+                if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 500) loadNextPage();
+            }
+        });
+
+        function goHome() { document.getElementById('seeAllView').style.display = 'none'; document.getElementById('homeView').style.display = 'block'; }
         loadHome();
     </script>
 </body>
