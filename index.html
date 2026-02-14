@@ -3,7 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>RedoyXStream</title>
+    
+    <title>RedoyXStream - Watch Anime Free</title>
+    <meta name="description" content="RedoyXStream is the best platform to watch high quality anime for free. Created by Redoy from Kushtia.">
+    <meta name="keywords" content="RedoyXStream, Redoy Anime, Free Anime, Watch Anime, Anime Website, Redoy, Kushtia Developer, Bangladesh Anime">
+    <meta name="author" content="Redoy">
+    <meta name="robots" content="index, follow">
+    
+    <meta property="og:title" content="RedoyXStream - Ultimate Anime Platform">
+    <meta property="og:description" content="Watch your favorite anime in HD for free on RedoyXStream.">
+    <meta property="og:type" content="website">
+
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root { --primary: #ff2e51; --bg: #080808; --card: #121212; --text: #ffffff; }
@@ -136,6 +146,8 @@
             <div id="genresArea" class="genre-scroll"></div>
         </div>
 
+        <div id="continueWatchingArea"></div>
+
         <div id="dynamicSections"></div>
     </div>
 
@@ -166,7 +178,7 @@
         <div class="section">
             <div style="padding:20px; background:#1a1a1a; margin-right:15px; border-radius:10px; border: 1px solid #333;">
                 <div style="font-weight:bold; margin-bottom:5px; font-size: 16px;">App Version</div>
-                <div style="font-size:13px; color:#888;">RedoyXStream v7.0 (Strict Security)</div>
+                <div style="font-size:13px; color:#888;">RedoyXStream v7.0 (Google Optimized)</div>
             </div>
         </div>
     </div>
@@ -256,6 +268,9 @@
         async function loadHome() {
             checkLogin(); renderMyList(); loadHistory(); loadSchedule();
 
+            // Render Continue Watching first
+            renderContinueWatching();
+
             const sliderRes = await fetch(`${BASE}/discover/tv?api_key=${API_KEY}&with_genres=16&sort_by=vote_average.desc&vote_count.gte=300&with_original_language=ja`);
             const sliderData = await sliderRes.json();
             const safeSlider = strictFilter(sliderData.results).slice(0, 10);
@@ -320,13 +335,43 @@
             }
         }
 
+        // --- CONTINUE WATCHING LOGIC ---
+        function renderContinueWatching() {
+            const list = JSON.parse(localStorage.getItem('sw_hist') || '[]');
+            const area = document.getElementById('continueWatchingArea');
+            
+            if(list.length === 0) {
+                area.innerHTML = '';
+                return;
+            }
+
+            let html = `
+                <div class="section">
+                    <div class="sec-head">
+                        <div class="sec-title">▶ Continue Watching</div>
+                    </div>
+                    <div class="row">`;
+            
+            list.slice(0, 10).forEach(a => {
+                html += `<div class="card" onclick="openPlayer('${cleanTitle(a.name)}', ${a.id}, '${a.poster}')">
+                            <div class="hd-tag" style="background:#444;">RESUME</div>
+                            <img src="https://image.tmdb.org/t/p/w300${a.poster}">
+                            <div class="card-title">${a.name}</div>
+                         </div>`;
+            });
+            html += `</div></div>`;
+            area.innerHTML = html;
+        }
+
         function openPlayer(name, id, poster) {
             if(id) {
                 let hist = JSON.parse(localStorage.getItem('sw_hist') || '[]');
                 hist = hist.filter(h => h.id !== id);
                 hist.unshift({id, name, poster});
                 localStorage.setItem('sw_hist', JSON.stringify(hist));
-                loadHistory();
+                
+                loadHistory(); 
+                renderContinueWatching(); 
             }
 
             const overlay = document.getElementById('serverOverlay');
