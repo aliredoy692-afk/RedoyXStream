@@ -3,140 +3,151 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RedoyXStream - Netflix Edition</title>
+    <title>REDOYFLIX - Premium</title>
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
-        :root { --netflix-red: #E50914; --bg: #000; --card-w: 140px; --card-h: 200px; }
+        :root { --red: #E50914; --bg: #000; --card-w: 130px; --card-h: 190px; }
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { background: var(--bg); color: #fff; font-family: 'Roboto', sans-serif; overflow-x: hidden; }
 
-        /* HEADER */
-        header { padding: 15px 4%; display: flex; justify-content: space-between; align-items: center; background: linear-gradient(to bottom, rgba(0,0,0,0.7) 0%, transparent 100%); position: fixed; width: 100%; top: 0; z-index: 1000; transition: 0.5s; }
-        .logo { color: var(--netflix-red); font-size: 28px; font-weight: 800; letter-spacing: -1px; }
-        .nav-links { display: flex; gap: 20px; font-size: 14px; align-items: center; }
-        .search-btn { cursor: pointer; font-size: 18px; }
+        /* NAVBAR */
+        header { padding: 15px 5%; display: flex; justify-content: space-between; align-items: center; background: linear-gradient(to bottom, rgba(0,0,0,0.8), transparent); position: fixed; width: 100%; top: 0; z-index: 1000; transition: 0.5s; }
+        .logo { color: var(--red); font-size: 30px; font-weight: 900; letter-spacing: -1.5px; }
+        .search-btn { cursor: pointer; font-size: 16px; background: rgba(255,255,255,0.1); padding: 5px 15px; border-radius: 20px; }
 
-        /* HERO BANNER */
-        .banner { width: 100%; height: 75vh; background-size: cover; background-position: center; position: relative; display: flex; align-items: center; padding-left: 4%; transition: background-image 1s ease-in-out; }
-        .banner::after { content: ''; position: absolute; inset: 0; background: linear-gradient(to top, var(--bg) 5%, transparent 50%), linear-gradient(to right, rgba(0,0,0,0.6), transparent); }
-        .banner-content { position: relative; z-index: 10; max-width: 500px; }
-        .banner-title { font-size: 45px; font-weight: bold; margin-bottom: 15px; text-shadow: 2px 2px 4px rgba(0,0,0,0.5); }
-        .play-btn { background: #fff; color: #000; border: none; padding: 10px 25px; border-radius: 4px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 10px; }
-
+        /* BANNER */
+        .banner { width: 100%; height: 80vh; background-size: cover; background-position: center top; position: relative; display: flex; align-items: center; padding-left: 5%; transition: 1s; }
+        .banner::after { content: ''; position: absolute; inset: 0; background: linear-gradient(to top, var(--bg) 10%, transparent 60%), linear-gradient(to right, rgba(0,0,0,0.7), transparent); }
+        .banner-content { position: relative; z-index: 10; max-width: 600px; }
+        .banner-title { font-size: 50px; line-height: 1.1; margin-bottom: 20px; font-weight: 900; }
+        .btn-play { background: #fff; color: #000; border: none; padding: 12px 30px; border-radius: 4px; font-weight: bold; cursor: pointer; font-size: 18px; margin-right: 10px; }
+        
         /* ROWS */
-        .container { padding: 20px 4%; margin-top: -80px; position: relative; z-index: 20; }
-        .section { margin-bottom: 35px; }
-        .sec-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
-        .sec-title { font-size: 18px; font-weight: bold; }
-        .see-all { font-size: 12px; color: #aaa; cursor: pointer; transition: 0.3s; }
-        .see-all:hover { color: #fff; }
-
-        .row { display: flex; gap: 10px; overflow-x: auto; scroll-behavior: smooth; padding-bottom: 10px; }
+        .main-container { padding: 0 5%; margin-top: -100px; position: relative; z-index: 20; }
+        .section { margin-bottom: 40px; }
+        .sec-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+        .sec-title { font-size: 20px; font-weight: bold; color: #e5e5e5; }
+        .see-all { font-size: 12px; color: #777; cursor: pointer; }
+        
+        .row { display: flex; gap: 12px; overflow-x: auto; scroll-behavior: smooth; padding-bottom: 15px; }
         .row::-webkit-scrollbar { display: none; }
         
-        .card { min-width: var(--card-w); width: var(--card-w); transition: 0.3s; cursor: pointer; }
-        .card:hover { transform: scale(1.08); z-index: 30; }
-        .card img { width: 100%; height: var(--card-h); object-fit: cover; border-radius: 4px; }
-        .card-title { font-size: 11px; margin-top: 5px; color: #e5e5e5; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .card { min-width: var(--card-w); width: var(--card-w); transition: transform 0.4s; cursor: pointer; position: relative; }
+        .card:hover { transform: scale(1.1); z-index: 50; }
+        .card img { width: 100%; height: var(--card-h); object-fit: cover; border-radius: 4px; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
+        .card-title { font-size: 11px; margin-top: 8px; color: #b3b3b3; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 500; }
 
-        /* SEARCH UI */
-        #searchUI { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 2000; padding: 50px 4%; }
-        .search-input { width: 100%; background: #222; border: 1px solid #444; color: white; padding: 15px; border-radius: 4px; font-size: 18px; outline: none; }
+        /* OVERLAYS */
+        #searchUI, #playerUI { display: none; position: fixed; inset: 0; background: var(--bg); z-index: 2000; flex-direction: column; overflow-y: auto; }
+        .search-box { width: 90%; margin: 80px auto 20px; padding: 15px; background: #141414; border: 1px solid #333; color: white; border-radius: 4px; font-size: 20px; outline: none; }
+        .video-box { width: 100%; aspect-ratio: 16/9; background: #000; }
+        #epList { display: grid; grid-template-columns: repeat(auto-fill, minmax(70px, 1fr)); gap: 10px; padding: 25px; }
+        .ep-btn { background: #2f2f2f; padding: 12px; border-radius: 4px; text-align: center; cursor: pointer; font-weight: bold; font-size: 14px; }
+        .ep-btn:hover { background: var(--red); }
         
-        /* PLAYER */
-        #playerUI { display: none; position: fixed; inset: 0; background: #000; z-index: 3000; flex-direction: column; }
-        .video-box { width: 100%; aspect-ratio: 16/9; }
-        video { width: 100%; height: 100%; }
-        #epList { display: grid; grid-template-columns: repeat(auto-fill, minmax(60px, 1fr)); gap: 10px; padding: 20px; }
-        .ep-btn { background: #333; padding: 10px; border-radius: 4px; text-align: center; cursor: pointer; font-size: 13px; }
+        /* WAKE UP LOADER */
+        #loader { position: fixed; inset: 0; background: #000; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .spinner { width: 50px; height: 50px; border: 5px solid #333; border-top-color: var(--red); border-radius: 50%; animation: spin 1s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
 
+    <div id="loader">
+        <div class="spinner"></div>
+        <p style="margin-top: 20px; color: #777;">Waking up Server... (Please wait 30s)</p>
+    </div>
+
     <header id="navbar">
         <div class="logo">REDOYFLIX</div>
-        <div class="nav-links">
-            <span class="search-btn" onclick="openSearch()"><i class="fas fa-search"></i> Search</span>
-        </div>
+        <div class="search-btn" onclick="openSearch()"><i class="fas fa-search"></i> Search</div>
     </header>
 
     <div class="banner" id="heroBanner">
         <div class="banner-content">
-            <h1 class="banner-title" id="heroTitle">Loading...</h1>
-            <button class="play-btn" id="heroBtn"><i class="fas fa-play"></i> Watch Now</button>
+            <h1 class="banner-title" id="heroTitle">...</h1>
+            <button class="btn-play" id="heroBtn"><i class="fas fa-play"></i> Play Now</button>
         </div>
     </div>
 
-    <div class="container">
-        <div id="sections-wrapper"></div>
+    <div class="main-container">
+        <div id="rows-container"></div>
     </div>
 
     <div id="searchUI">
-        <div style="text-align:right; margin-bottom:20px;"><i class="fas fa-times" style="font-size:30px; cursor:pointer;" onclick="closeSearch()"></i></div>
-        <input type="text" class="search-input" id="sq" placeholder="Search anime by name..." onchange="doSearch()">
-        <div class="row" id="searchGrid" style="flex-wrap:wrap; margin-top:30px; justify-content:center;"></div>
+        <div style="padding: 20px 5%; display: flex; justify-content: space-between; align-items: center;">
+            <h2>Search Anime</h2>
+            <i class="fas fa-times" style="font-size: 30px; cursor: pointer;" onclick="closeSearch()"></i>
+        </div>
+        <input type="text" class="search-box" id="sq" placeholder="Type anime name..." onchange="doSearch()">
+        <div class="row" id="searchGrid" style="flex-wrap: wrap; justify-content: center; padding: 20px 5%;"></div>
     </div>
 
     <div id="playerUI">
-        <div style="padding:15px; display:flex; gap:15px; align-items:center;">
-            <i class="fas fa-arrow-left" style="cursor:pointer;" onclick="closePlayer()"></i>
-            <span id="pTitle" style="font-weight:bold;">Now Playing</span>
+        <div style="padding: 20px 5%; display: flex; gap: 20px; align-items: center; background: #141414;">
+            <i class="fas fa-arrow-left" style="font-size: 24px; cursor: pointer;" onclick="closePlayer()"></i>
+            <h3 id="pTitle">Loading...</h3>
         </div>
-        <div class="video-box"><video id="vid" controls></video></div>
+        <div class="video-box"><video id="vid" controls style="width: 100%; height: 100%;"></video></div>
         <div id="epList"></div>
     </div>
 
     <script>
-        const API = 'https://consumet-api-latest-qhhs.onrender.com/anime/gogoanime';
-        const genres = ["Action", "Adventure", "Comedy", "Horror", "Fantasy"];
-        let trendingData = [];
+        const BASE_API = 'https://consumet-api-latest-qhhs.onrender.com/anime/gogoanime';
+        const genreList = ["Action", "Romance", "Horror", "Adventure", "Comedy"];
+        let trending = [];
         let heroIdx = 0;
 
         async function init() {
-            // ১. ট্র্যান্ডিং স্লাইডার সেটআপ
             try {
-                const res = await fetch(`${API}/top-airing`);
-                const data = await res.json();
-                trendingData = data.results;
-                updateHero();
-                setInterval(updateHero, 4000); // প্রতি ৪ সেকেন্ডে পাল্টাবে
-            } catch(e) {}
+                // ১. সার্ভার জাগানোর প্রথম চেষ্টা
+                const wakeRes = await fetch('https://consumet-api-latest-qhhs.onrender.com/');
+                if(!wakeRes.ok) throw new Error("Waking up...");
+                
+                document.getElementById('loader').style.display = 'none';
 
-            // ২. ৫টি জেনার লোড করা
-            const wrapper = document.getElementById('sections-wrapper');
-            for(let g of genres) {
-                const sec = document.createElement('div');
-                sec.className = 'section';
-                sec.innerHTML = `
-                    <div class="sec-head">
-                        <div class="sec-title">${g} Anime</div>
-                        <div class="see-all">See All ></div>
-                    </div>
-                    <div class="row" id="row-${g}">Loading...</div>
-                `;
-                wrapper.appendChild(sec);
-                loadGenre(g, `row-${g}`);
+                // ২. ট্র্যান্ডিং লোড
+                const trendRes = await fetch(`${BASE_API}/top-airing`);
+                const trendData = await trendRes.json();
+                trending = trendData.results;
+                updateHero();
+                setInterval(updateHero, 4000);
+
+                // ৩. জেনার সারি তৈরি
+                const container = document.getElementById('rows-container');
+                for(let g of genreList) {
+                    const sec = document.createElement('div');
+                    sec.className = 'section';
+                    sec.innerHTML = `
+                        <div class="sec-head"><div class="sec-title">${g} Anime</div><div class="see-all">See All ></div></div>
+                        <div class="row" id="row-${g}"><p style="color:#444;">Loading...</p></div>
+                    `;
+                    container.appendChild(sec);
+                    loadGenre(g, `row-${g}`);
+                }
+            } catch (e) {
+                // সার্ভার না জাগলে ৩ সেকেন্ড পর অটো রিলোড
+                setTimeout(() => location.reload(), 3000);
             }
         }
 
-        async function loadGenre(genre, elementId) {
+        async function loadGenre(q, id) {
             try {
-                // জেনার অনুযায়ী ডাটা ফেচিং (এখানে সার্চ এপিআই ব্যবহার করা হয়েছে জেনারের জন্য)
-                const res = await fetch(`${API}/${genre.toLowerCase()}`);
+                const res = await fetch(`${BASE_API}/${q.toLowerCase()}`);
                 const data = await res.json();
-                renderCards(data.results, elementId);
-            } catch(e) { document.getElementById(elementId).innerText = "Load failed."; }
+                renderCards(data.results, id);
+            } catch(e) { document.getElementById(id).innerText = "Server Error. Refresh!"; }
         }
 
         function updateHero() {
-            if(!trendingData.length) return;
-            const hero = trendingData[heroIdx];
-            document.getElementById('heroBanner').style.backgroundImage = `url('${hero.image}')`;
-            document.getElementById('heroTitle').innerText = hero.title;
-            document.getElementById('heroBtn').onclick = () => loadInfo(hero.id);
-            heroIdx = (heroIdx + 1) % trendingData.length;
+            if(!trending.length) return;
+            const h = trending[heroIdx];
+            document.getElementById('heroBanner').style.backgroundImage = `url('${h.image}')`;
+            document.getElementById('heroTitle').innerText = h.title;
+            document.getElementById('heroBtn').onclick = () => loadInfo(h.id);
+            heroIdx = (heroIdx + 1) % trending.length;
         }
 
         function renderCards(list, id) {
@@ -154,8 +165,8 @@
         async function loadInfo(id) {
             document.getElementById('playerUI').style.display = 'flex';
             const grid = document.getElementById('epList');
-            grid.innerHTML = 'Loading...';
-            const res = await fetch(`${API}/info/${id}`);
+            grid.innerHTML = 'Fetching episodes...';
+            const res = await fetch(`${BASE_API}/info/${id}`);
             const data = await res.json();
             document.getElementById('pTitle').innerText = data.title;
             grid.innerHTML = '';
@@ -166,32 +177,33 @@
         }
 
         async function play(epId) {
-            const res = await fetch(`${API}/watch/${epId}`);
+            const res = await fetch(`${BASE_API}/watch/${epId}`);
             const data = await res.json();
-            const src = data.sources.find(s => s.quality === '720p' || s.quality === 'default' || s.quality === 'auto').url;
+            const src = data.sources.find(s => s.quality === 'default' || s.quality === '720p' || s.quality === 'auto').url;
             const video = document.getElementById('vid');
             if(Hls.isSupported()){
                 const hls = new Hls();
                 hls.loadSource(src);
                 hls.attachMedia(video);
-            } else video.src = src;
-            video.play();
+                hls.on(Hls.Events.MANIFEST_PARSED, () => video.play());
+            } else { video.src = src; video.play(); }
         }
 
-        function openSearch() { document.getElementById('searchUI').style.display = 'block'; }
+        function openSearch() { document.getElementById('searchUI').style.display = 'flex'; }
         function closeSearch() { document.getElementById('searchUI').style.display = 'none'; }
         function closePlayer() { document.getElementById('playerUI').style.display = 'none'; document.getElementById('vid').pause(); }
 
         async function doSearch() {
             const q = document.getElementById('sq').value;
-            const res = await fetch(`${API}/${q}`);
+            const res = await fetch(`${BASE_API}/${q}`);
             const data = await res.json();
             renderCards(data.results, 'searchGrid');
         }
 
-        window.onscroll = function() {
-            if (window.pageYOffset > 50) document.getElementById("navbar").style.background = "#000";
-            else document.getElementById("navbar").style.background = "transparent";
+        window.onscroll = () => {
+            const nav = document.getElementById("navbar");
+            if (window.pageYOffset > 50) nav.style.background = "#000";
+            else nav.style.background = "linear-gradient(to bottom, rgba(0,0,0,0.8), transparent)";
         };
 
         init();
