@@ -3,140 +3,137 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>REDOYFLIX - Premium</title>
+    <title>REDOYFLIX - Personal Cinema</title>
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
-        :root { --red: #E50914; --bg: #000; --card-w: 130px; --card-h: 190px; }
+        :root { --red: #E50914; --bg: #000; }
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { background: var(--bg); color: #fff; font-family: 'Roboto', sans-serif; overflow-x: hidden; }
-        header { padding: 15px 5%; display: flex; justify-content: space-between; align-items: center; background: linear-gradient(to bottom, rgba(0,0,0,0.8), transparent); position: fixed; width: 100%; top: 0; z-index: 1000; }
-        .logo { color: var(--red); font-size: 30px; font-weight: 900; letter-spacing: -1.5px; }
-        .banner { width: 100%; height: 80vh; background-size: cover; background-position: center top; position: relative; display: flex; align-items: center; padding-left: 5%; transition: 1s; }
-        .banner::after { content: ''; position: absolute; inset: 0; background: linear-gradient(to top, var(--bg) 10%, transparent 60%), linear-gradient(to right, rgba(0,0,0,0.7), transparent); }
-        .banner-content { position: relative; z-index: 10; max-width: 600px; }
-        .banner-title { font-size: 45px; line-height: 1.1; margin-bottom: 20px; font-weight: 900; }
-        .btn-play { background: #fff; color: #000; border: none; padding: 12px 30px; border-radius: 4px; font-weight: bold; cursor: pointer; font-size: 18px; }
-        .main-container { padding: 0 5%; margin-top: -100px; position: relative; z-index: 20; }
-        .section { margin-bottom: 40px; }
-        .sec-title { font-size: 20px; font-weight: bold; color: #e5e5e5; margin-bottom: 12px; }
-        .row { display: flex; gap: 12px; overflow-x: auto; scroll-behavior: smooth; padding-bottom: 15px; }
-        .row::-webkit-scrollbar { display: none; }
-        .card { min-width: var(--card-w); width: var(--card-w); transition: 0.4s; cursor: pointer; }
+        body { background: var(--bg); color: #fff; font-family: 'Roboto', sans-serif; }
+        header { padding: 15px 5%; display: flex; justify-content: space-between; align-items: center; background: #000; position: sticky; top: 0; z-index: 1000; }
+        .logo { color: var(--red); font-size: 28px; font-weight: 900; }
+        .search-container { padding: 10px 5%; }
+        .search-bar { width: 100%; padding: 12px; background: #222; border: none; color: white; border-radius: 5px; }
+        .main-container { padding: 20px 5%; }
+        .row { display: flex; gap: 15px; overflow-x: auto; padding-bottom: 20px; scrollbar-width: none; }
+        .card { min-width: 130px; cursor: pointer; transition: 0.3s; }
         .card:hover { transform: scale(1.1); }
-        .card img { width: 100%; height: var(--card-h); object-fit: cover; border-radius: 4px; }
-        .card-title { font-size: 11px; margin-top: 8px; color: #b3b3b3; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        #loadingOverlay { position: fixed; inset: 0; background: #000; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        .spinner { width: 50px; height: 50px; border: 5px solid #333; border-top-color: var(--red); border-radius: 50%; animation: spin 1s linear infinite; }
-        @keyframes spin { to { transform: rotate(360deg); } }
+        .card img { width: 100%; height: 180px; object-fit: cover; border-radius: 5px; background: #111; }
+        .card-title { font-size: 11px; margin-top: 5px; text-align: center; color: #ccc; }
         #playerUI { display: none; position: fixed; inset: 0; background: #000; z-index: 5000; flex-direction: column; }
+        .video-box { width: 100%; aspect-ratio: 16/9; background: #000; }
+        .ep-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(60px, 1fr)); gap: 10px; padding: 20px; }
+        .ep-btn { background: #333; padding: 10px; text-align: center; border-radius: 5px; cursor: pointer; }
+        .loader { text-align: center; padding: 50px; color: gold; font-size: 14px; }
     </style>
 </head>
 <body>
 
-    <div id="loadingOverlay">
-        <div class="spinner"></div>
-        <p style="margin-top: 20px; color: #777;">Waking up server... This may take 60s.</p>
-    </div>
-
     <header>
         <div class="logo">REDOYFLIX</div>
+        <div onclick="location.reload()"><i class="fas fa-sync-alt"></i></div>
     </header>
 
-    <div class="banner" id="heroBanner">
-        <div class="banner-content">
-            <h1 class="banner-title" id="heroTitle">...</h1>
-            <button class="btn-play" id="heroBtn">Play Now</button>
-        </div>
+    <div class="search-container">
+        <input type="text" class="search-bar" id="searchQ" placeholder="Search Anime Name..." onchange="searchAnime()">
     </div>
 
     <div class="main-container">
-        <div id="rows-container"></div>
+        <div id="status" class="loader">🚀 Connecting to your private server... Please wait 60s.</div>
+        
+        <h2 id="title1" style="display:none;">🔥 Trending Now</h2>
+        <div class="row" id="trendingRow"></div>
+
+        <h2 id="title2" style="display:none;">🆕 New Releases</h2>
+        <div class="row" id="recentRow"></div>
     </div>
 
     <div id="playerUI">
-        <div style="padding: 20px; background: #111;"><i class="fas fa-arrow-left" onclick="location.reload()" style="cursor:pointer;"> Back</i></div>
-        <video id="vid" controls style="width: 100%; aspect-ratio: 16/9;"></video>
-        <div id="epList" style="display:grid; grid-template-columns: repeat(auto-fill, minmax(70px, 1fr)); gap: 10px; padding: 20px;"></div>
+        <div style="padding: 15px; background: #111;" onclick="closePlayer()"><i class="fas fa-arrow-left"></i> Back to Home</div>
+        <div class="video-box"><video id="vid" controls autoplay width="100%"></video></div>
+        <div class="ep-list" id="epList"></div>
     </div>
 
     <script>
-        // ✅ সঠিক এবং লেটেস্ট সার্ভার লিঙ্ক
-        const API = 'https://consumet-api-latest-qhhs.onrender.com/anime/gogoanime';
-        const genres = ["Action", "Adventure", "Comedy", "Horror", "Fantasy"];
+        // ✅ আপনার লাইভ সার্ভার লিংক
+        const API_URL = 'https://consumet-api-latest-qhhs.onrender.com/anime/gogoanime';
 
         async function init() {
             try {
-                // ১. সার্ভারকে একবার জাগানোর চেষ্টা করা
-                const wakeRes = await fetch('https://consumet-api-latest-qhhs.onrender.com/');
-                if(!wakeRes.ok) throw new Error("Waking");
-
-                // ২. সার্ভার জাগলে লোডার বন্ধ হবে
-                document.getElementById('loadingOverlay').style.display = 'none';
-
-                // ৩. ট্র্যান্ডিং এবং জেনার লোড করা
-                const trendRes = await fetch(`${API}/top-airing`);
-                const trendData = await trendRes.json();
-                updateBanner(trendData.results[0]);
-
-                const container = document.getElementById('rows-container');
-                for(let g of genres) {
-                    const rowId = `row-${g}`;
-                    container.innerHTML += `
-                        <div class="section">
-                            <div class="sec-title">${g} Anime</div>
-                            <div class="row" id="${rowId}">Loading...</div>
-                        </div>`;
-                    fetchGenre(g, rowId);
+                // ১. সার্ভারকে জাগানো এবং ডাটা নেওয়া
+                const res = await fetch(`${API_URL}/top-airing`);
+                const data = await res.json();
+                
+                if(data.results.length > 0) {
+                    document.getElementById('status').style.display = 'none';
+                    document.getElementById('title1').style.display = 'block';
+                    renderCards(data.results, 'trendingRow');
                 }
-            } catch (e) {
-                // সার্ভার না জাগলে প্রতি ৫ সেকেন্ড পর পর আবার চেষ্টা করবে
-                setTimeout(init, 5000);
+
+                // ২. রিসেন্ট এপিসোড লোড
+                const res2 = await fetch(`${API_URL}/recent-episodes`);
+                const data2 = await res2.json();
+                document.getElementById('title2').style.display = 'block';
+                renderCards(data2.results, 'recentRow');
+
+            } catch (err) {
+                document.getElementById('status').innerHTML = "⚠️ Server is sleeping. <br><br> <button onclick='location.reload()' style='padding:10px; background:red; color:white; border:none; border-radius:5px;'>Tap to Wake Up Server</button>";
             }
         }
 
-        async function fetchGenre(q, id) {
-            try {
-                const res = await fetch(`${API}/${q.toLowerCase()}`);
-                const data = await res.json();
-                const el = document.getElementById(id);
-                el.innerHTML = '';
-                data.results.forEach(item => {
-                    el.innerHTML += `<div class="card" onclick="loadInfo('${item.id}')"><img src="${item.image}"><div class="card-title">${item.title}</div></div>`;
-                });
-            } catch(e) {}
-        }
-
-        function updateBanner(anime) {
-            document.getElementById('heroBanner').style.backgroundImage = `url('${anime.image}')`;
-            document.getElementById('heroTitle').innerText = anime.title;
-            document.getElementById('heroBtn').onclick = () => loadInfo(anime.id);
-        }
-
-        async function loadInfo(id) {
-            document.getElementById('playerUI').style.display = 'flex';
-            const res = await fetch(`${API}/info/${id}`);
-            const data = await res.json();
-            const grid = document.getElementById('epList');
-            grid.innerHTML = '';
-            data.episodes.forEach(ep => {
-                grid.innerHTML += `<div style="background:#333; padding:10px; text-align:center; border-radius:4px; cursor:pointer;" onclick="play('${ep.id}')">EP ${ep.number}</div>`;
+        function renderCards(list, containerId) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = '';
+            list.forEach(anime => {
+                container.innerHTML += `
+                    <div class="card" onclick="openAnime('${anime.id}')">
+                        <img src="${anime.image}" alt="poster">
+                        <div class="card-title">${anime.title}</div>
+                    </div>`;
             });
-            if(data.episodes.length) play(data.episodes[0].id);
         }
 
-        async function play(epId) {
-            const res = await fetch(`${API}/watch/${epId}`);
+        async function searchAnime() {
+            const query = document.getElementById('searchQ').value;
+            document.getElementById('status').style.display = 'block';
+            document.getElementById('status').innerText = "Searching...";
+            
+            const res = await fetch(`${API_URL}/${query}`);
             const data = await res.json();
-            const src = data.sources.find(s => s.quality === 'default' || s.quality === 'auto').url;
+            document.getElementById('status').style.display = 'none';
+            document.getElementById('title1').innerText = "Search Results";
+            renderCards(data.results, 'trendingRow');
+            document.getElementById('recentRow').innerHTML = '';
+        }
+
+        async function openAnime(id) {
+            document.getElementById('playerUI').style.display = 'flex';
+            const res = await fetch(`${API_URL}/info/${id}`);
+            const data = await res.json();
+            const list = document.getElementById('epList');
+            list.innerHTML = '';
+            data.episodes.forEach(ep => {
+                list.innerHTML += `<div class="ep-btn" onclick="playEp('${ep.id}')">EP ${ep.number}</div>`;
+            });
+            if(data.episodes.length > 0) playEp(data.episodes[0].id);
+        }
+
+        async function playEp(epId) {
+            const res = await fetch(`${API_URL}/watch/${epId}`);
+            const data = await res.json();
+            const source = data.sources.find(s => s.quality === 'default' || s.quality === 'auto').url;
             const video = document.getElementById('vid');
-            if(Hls.isSupported()){
+            if (Hls.isSupported()) {
                 const hls = new Hls();
-                hls.loadSource(src);
+                hls.loadSource(source);
                 hls.attachMedia(video);
-            } else video.src = src;
-            video.play();
+            } else { video.src = source; }
+        }
+
+        function closePlayer() {
+            document.getElementById('playerUI').style.display = 'none';
+            document.getElementById('vid').pause();
         }
 
         init();
