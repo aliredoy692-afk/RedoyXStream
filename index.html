@@ -3,170 +3,196 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RedoyXStream - Zoro</title>
+    <title>RedoyXStream - Netflix Edition</title>
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        :root { --primary: #FFD700; --bg: #0F0F0F; --text: #fff; }
-        body { background: var(--bg); color: var(--text); font-family: 'Poppins', sans-serif; margin: 0; padding-bottom: 70px; }
-        
-        /* HEADER */
-        .header { padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; background: rgba(15,15,15,0.95); position: sticky; top: 0; z-index: 100; border-bottom: 1px solid #333; }
-        .logo { font-weight: 800; font-size: 22px; color: var(--primary); }
-        
-        /* SEARCH BOX (Always Visible) */
-        .search-container { padding: 15px; }
-        .search-bar { width: 100%; padding: 15px; background: #222; border: 1px solid #333; color: white; border-radius: 8px; font-size: 16px; outline: none; }
-        
-        /* STATUS MSG */
-        #statusMsg { text-align: center; color: orange; font-size: 12px; margin-top: 10px; display: none; }
+        :root { --netflix-red: #E50914; --bg: #000; --card-w: 140px; --card-h: 200px; }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { background: var(--bg); color: #fff; font-family: 'Roboto', sans-serif; overflow-x: hidden; }
 
-        /* SECTIONS */
-        .section { margin-bottom: 25px; padding-left: 15px; }
-        .sec-title { border-left: 3px solid var(--primary); padding-left: 10px; font-weight: bold; margin-bottom: 10px; font-size: 18px; }
-        
-        .row { display: flex; gap: 12px; overflow-x: auto; padding-bottom: 10px; scrollbar-width: none; }
+        /* HEADER */
+        header { padding: 15px 4%; display: flex; justify-content: space-between; align-items: center; background: linear-gradient(to bottom, rgba(0,0,0,0.7) 0%, transparent 100%); position: fixed; width: 100%; top: 0; z-index: 1000; transition: 0.5s; }
+        .logo { color: var(--netflix-red); font-size: 28px; font-weight: 800; letter-spacing: -1px; }
+        .nav-links { display: flex; gap: 20px; font-size: 14px; align-items: center; }
+        .search-btn { cursor: pointer; font-size: 18px; }
+
+        /* HERO BANNER */
+        .banner { width: 100%; height: 75vh; background-size: cover; background-position: center; position: relative; display: flex; align-items: center; padding-left: 4%; transition: background-image 1s ease-in-out; }
+        .banner::after { content: ''; position: absolute; inset: 0; background: linear-gradient(to top, var(--bg) 5%, transparent 50%), linear-gradient(to right, rgba(0,0,0,0.6), transparent); }
+        .banner-content { position: relative; z-index: 10; max-width: 500px; }
+        .banner-title { font-size: 45px; font-weight: bold; margin-bottom: 15px; text-shadow: 2px 2px 4px rgba(0,0,0,0.5); }
+        .play-btn { background: #fff; color: #000; border: none; padding: 10px 25px; border-radius: 4px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 10px; }
+
+        /* ROWS */
+        .container { padding: 20px 4%; margin-top: -80px; position: relative; z-index: 20; }
+        .section { margin-bottom: 35px; }
+        .sec-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .sec-title { font-size: 18px; font-weight: bold; }
+        .see-all { font-size: 12px; color: #aaa; cursor: pointer; transition: 0.3s; }
+        .see-all:hover { color: #fff; }
+
+        .row { display: flex; gap: 10px; overflow-x: auto; scroll-behavior: smooth; padding-bottom: 10px; }
         .row::-webkit-scrollbar { display: none; }
         
-        .card { min-width: 120px; width: 120px; position: relative; cursor: pointer; }
-        .card img { width: 100%; height: 170px; object-fit: cover; border-radius: 8px; background: #222; }
-        .card-title { font-size: 11px; margin-top: 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #ccc; }
+        .card { min-width: var(--card-w); width: var(--card-w); transition: 0.3s; cursor: pointer; }
+        .card:hover { transform: scale(1.08); z-index: 30; }
+        .card img { width: 100%; height: var(--card-h); object-fit: cover; border-radius: 4px; }
+        .card-title { font-size: 11px; margin-top: 5px; color: #e5e5e5; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-        /* PLAYER OVERLAY */
-        #playerUI { display: none; position: fixed; inset: 0; background: #000; z-index: 5000; flex-direction: column; }
-        .video-box { width: 100%; aspect-ratio: 16/9; background: black; }
+        /* SEARCH UI */
+        #searchUI { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 2000; padding: 50px 4%; }
+        .search-input { width: 100%; background: #222; border: 1px solid #444; color: white; padding: 15px; border-radius: 4px; font-size: 18px; outline: none; }
+        
+        /* PLAYER */
+        #playerUI { display: none; position: fixed; inset: 0; background: #000; z-index: 3000; flex-direction: column; }
+        .video-box { width: 100%; aspect-ratio: 16/9; }
         video { width: 100%; height: 100%; }
-        #epGrid { display: grid; grid-template-columns: repeat(5,1fr); gap: 10px; padding: 15px; overflow-y: auto; }
-        .ep-btn { background: #333; padding: 10px; border-radius: 5px; text-align: center; font-size: 12px; }
+        #epList { display: grid; grid-template-columns: repeat(auto-fill, minmax(60px, 1fr)); gap: 10px; padding: 20px; }
+        .ep-btn { background: #333; padding: 10px; border-radius: 4px; text-align: center; cursor: pointer; font-size: 13px; }
     </style>
 </head>
 <body>
 
-    <div class="header">
-        <div class="logo">REDOY<span>X</span> (Zoro)</div>
+    <header id="navbar">
+        <div class="logo">REDOYFLIX</div>
+        <div class="nav-links">
+            <span class="search-btn" onclick="openSearch()"><i class="fas fa-search"></i> Search</span>
+        </div>
+    </header>
+
+    <div class="banner" id="heroBanner">
+        <div class="banner-content">
+            <h1 class="banner-title" id="heroTitle">Loading...</h1>
+            <button class="play-btn" id="heroBtn"><i class="fas fa-play"></i> Watch Now</button>
+        </div>
     </div>
 
-    <div id="statusMsg">Checking Server...</div>
-
-    <div class="search-container">
-        <input type="text" class="search-bar" id="q" placeholder="Search Anime (e.g. Naruto)..." onchange="doSearch()">
+    <div class="container">
+        <div id="sections-wrapper"></div>
     </div>
 
-    <div class="section">
-        <div class="sec-title">🔥 Recent Releases</div>
-        <div class="row" id="recentRow"></div>
-    </div>
-
-    <div class="section">
-        <div class="sec-title">🌟 Top Airing</div>
-        <div class="row" id="topRow"></div>
-    </div>
-
-    <div class="section" id="searchSection" style="display:none;">
-        <div class="sec-title">🔍 Search Results</div>
-        <div class="row" id="sGrid" style="flex-wrap:wrap; overflow:visible;"></div>
+    <div id="searchUI">
+        <div style="text-align:right; margin-bottom:20px;"><i class="fas fa-times" style="font-size:30px; cursor:pointer;" onclick="closeSearch()"></i></div>
+        <input type="text" class="search-input" id="sq" placeholder="Search anime by name..." onchange="doSearch()">
+        <div class="row" id="searchGrid" style="flex-wrap:wrap; margin-top:30px; justify-content:center;"></div>
     </div>
 
     <div id="playerUI">
-        <div style="padding:15px; background:#111; display:flex; gap:15px; align-items:center;">
-            <i class="fas fa-arrow-left" onclick="document.getElementById('playerUI').style.display='none'; document.getElementById('vid').pause();"></i>
-            <span style="font-weight:bold; color:gold;">Now Playing</span>
+        <div style="padding:15px; display:flex; gap:15px; align-items:center;">
+            <i class="fas fa-arrow-left" style="cursor:pointer;" onclick="closePlayer()"></i>
+            <span id="pTitle" style="font-weight:bold;">Now Playing</span>
         </div>
-        <div class="video-box">
-            <video id="vid" controls autoplay></video>
-        </div>
-        <div id="epGrid"></div>
+        <div class="video-box"><video id="vid" controls></video></div>
+        <div id="epList"></div>
     </div>
 
     <script>
-        // Switched to ZORO (More stable)
-        const API = 'https://consumet-api-latest-qhhs.onrender.com/anime/zoro';
-        
+        const API = 'https://consumet-api-latest-qhhs.onrender.com/anime/gogoanime';
+        const genres = ["Action", "Adventure", "Comedy", "Horror", "Fantasy"];
+        let trendingData = [];
+        let heroIdx = 0;
+
         async function init() {
-            const msg = document.getElementById('statusMsg');
-            msg.style.display = 'block';
-            
+            // ১. ট্র্যান্ডিং স্লাইডার সেটআপ
             try {
-                // Try fetching Recent
-                const res = await fetch(`${API}/recent-episodes`);
-                if(!res.ok) throw new Error("Source Error");
+                const res = await fetch(`${API}/top-airing`);
                 const data = await res.json();
-                
-                msg.style.display = 'none'; // Success!
-                renderCards(data.results, 'recentRow');
+                trendingData = data.results;
+                updateHero();
+                setInterval(updateHero, 4000); // প্রতি ৪ সেকেন্ডে পাল্টাবে
+            } catch(e) {}
 
-                // Try fetching Top Airing
-                const topRes = await fetch(`${API}/top-airing`);
-                const topData = await topRes.json();
-                renderCards(topData.results, 'topRow');
-
-            } catch (e) {
-                msg.innerText = "⚠️ Home page failed to load, but SEARCH works! Try searching below.";
-                msg.style.color = "orange";
+            // ২. ৫টি জেনার লোড করা
+            const wrapper = document.getElementById('sections-wrapper');
+            for(let g of genres) {
+                const sec = document.createElement('div');
+                sec.className = 'section';
+                sec.innerHTML = `
+                    <div class="sec-head">
+                        <div class="sec-title">${g} Anime</div>
+                        <div class="see-all">See All ></div>
+                    </div>
+                    <div class="row" id="row-${g}">Loading...</div>
+                `;
+                wrapper.appendChild(sec);
+                loadGenre(g, `row-${g}`);
             }
         }
 
-        async function doSearch() {
-            const q = document.getElementById('q').value;
-            const grid = document.getElementById('sGrid');
-            document.getElementById('searchSection').style.display = 'block';
-            grid.innerHTML = 'Searching...';
-
+        async function loadGenre(genre, elementId) {
             try {
-                const res = await fetch(`${API}/${q}`);
+                // জেনার অনুযায়ী ডাটা ফেচিং (এখানে সার্চ এপিআই ব্যবহার করা হয়েছে জেনারের জন্য)
+                const res = await fetch(`${API}/${genre.toLowerCase()}`);
                 const data = await res.json();
-                grid.innerHTML = '';
-                data.results.forEach(item => {
-                    grid.innerHTML += `
-                    <div class="card" style="margin-bottom:15px;" onclick="loadInfo('${item.id}')">
-                        <img src="${item.image}">
-                        <div class="card-title">${item.title}</div>
-                    </div>`;
-                });
-            } catch(e) { grid.innerHTML = 'Error searching.'; }
+                renderCards(data.results, elementId);
+            } catch(e) { document.getElementById(elementId).innerText = "Load failed."; }
+        }
+
+        function updateHero() {
+            if(!trendingData.length) return;
+            const hero = trendingData[heroIdx];
+            document.getElementById('heroBanner').style.backgroundImage = `url('${hero.image}')`;
+            document.getElementById('heroTitle').innerText = hero.title;
+            document.getElementById('heroBtn').onclick = () => loadInfo(hero.id);
+            heroIdx = (heroIdx + 1) % trendingData.length;
+        }
+
+        function renderCards(list, id) {
+            const el = document.getElementById(id);
+            el.innerHTML = '';
+            list.forEach(item => {
+                el.innerHTML += `
+                <div class="card" onclick="loadInfo('${item.id}')">
+                    <img src="${item.image}" loading="lazy">
+                    <div class="card-title">${item.title}</div>
+                </div>`;
+            });
         }
 
         async function loadInfo(id) {
             document.getElementById('playerUI').style.display = 'flex';
-            const grid = document.getElementById('epGrid');
-            grid.innerHTML = 'Loading Episodes...';
-            
-            const res = await fetch(`${API}/info?id=${id}`);
+            const grid = document.getElementById('epList');
+            grid.innerHTML = 'Loading...';
+            const res = await fetch(`${API}/info/${id}`);
             const data = await res.json();
+            document.getElementById('pTitle').innerText = data.title;
             grid.innerHTML = '';
-            
             data.episodes.forEach(ep => {
-                grid.innerHTML += `<div class="ep-btn" onclick="play('${ep.id}')">${ep.number}</div>`;
+                grid.innerHTML += `<div class="ep-btn" onclick="play('${ep.id}')">EP ${ep.number}</div>`;
             });
             if(data.episodes.length) play(data.episodes[0].id);
         }
 
         async function play(epId) {
-            try {
-                const res = await fetch(`${API}/watch?episodeId=${epId}`);
-                const data = await res.json();
-                const src = data.sources.find(s => s.quality === 'default' || s.quality === 'auto').url;
-                const video = document.getElementById('vid');
-                
-                if(Hls.isSupported()){
-                    const hls = new Hls();
-                    hls.loadSource(src);
-                    hls.attachMedia(video);
-                } else video.src = src;
-            } catch(e) { alert("Stream not found for this episode."); }
+            const res = await fetch(`${API}/watch/${epId}`);
+            const data = await res.json();
+            const src = data.sources.find(s => s.quality === '720p' || s.quality === 'default' || s.quality === 'auto').url;
+            const video = document.getElementById('vid');
+            if(Hls.isSupported()){
+                const hls = new Hls();
+                hls.loadSource(src);
+                hls.attachMedia(video);
+            } else video.src = src;
+            video.play();
         }
 
-        function renderCards(list, id) {
-            const el = document.getElementById(id);
-            list.forEach(item => {
-                el.innerHTML += `
-                <div class="card" onclick="loadInfo('${item.id}')">
-                    <img src="${item.image}">
-                    <div class="card-title">${item.title}</div>
-                </div>`;
-            });
+        function openSearch() { document.getElementById('searchUI').style.display = 'block'; }
+        function closeSearch() { document.getElementById('searchUI').style.display = 'none'; }
+        function closePlayer() { document.getElementById('playerUI').style.display = 'none'; document.getElementById('vid').pause(); }
+
+        async function doSearch() {
+            const q = document.getElementById('sq').value;
+            const res = await fetch(`${API}/${q}`);
+            const data = await res.json();
+            renderCards(data.results, 'searchGrid');
         }
+
+        window.onscroll = function() {
+            if (window.pageYOffset > 50) document.getElementById("navbar").style.background = "#000";
+            else document.getElementById("navbar").style.background = "transparent";
+        };
 
         init();
     </script>
