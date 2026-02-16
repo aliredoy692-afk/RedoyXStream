@@ -3,135 +3,108 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="referrer" content="origin">
-    <title>REDOYFLIX - Movie Box</title>
+    <meta name="referrer" content="no-referrer"> <title>REDOYFLIX - Hybrid</title>
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;700&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
     <style>
-        :root { --red: #E50914; --dark: #0f0f0f; --gray: #222; }
+        :root { --red: #ff0000; --dark: #111; }
         body { background: var(--dark); color: white; font-family: 'Roboto', sans-serif; margin: 0; padding-bottom: 50px; }
         
-        /* Navbar */
-        header { padding: 20px; display: flex; align-items: center; justify-content: space-between; background: linear-gradient(black, transparent); position: sticky; top: 0; z-index: 100; }
-        .logo { font-family: 'Oswald'; font-size: 28px; color: var(--red); letter-spacing: 2px; font-weight: bold; text-shadow: 2px 2px 0px #000; cursor: pointer; }
+        /* Status Bar */
+        #statusBar { background: #333; color: gold; text-align: center; padding: 5px; font-size: 11px; font-weight: bold; position: sticky; top: 0; z-index: 2000; }
         
-        /* Menu Buttons */
-        .menu { display: flex; gap: 10px; overflow-x: auto; padding: 10px 20px; }
-        .menu-btn { background: var(--gray); color: white; border: 1px solid #333; padding: 8px 15px; border-radius: 20px; cursor: pointer; white-space: nowrap; font-size: 14px; }
-        .menu-btn.active { background: var(--red); border-color: var(--red); font-weight: bold; }
-
-        /* Search */
-        .search-box { padding: 0 20px; margin-bottom: 20px; }
-        input { width: 100%; background: #222; border: 1px solid #333; padding: 12px; border-radius: 8px; color: white; outline: none; }
+        header { padding: 15px; display: flex; justify-content: space-between; align-items: center; background: #000; }
+        .logo { font-family: 'Oswald'; font-size: 26px; color: var(--red); letter-spacing: 1px; }
         
         /* Grid */
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 12px; padding: 0 20px; }
-        .card { cursor: pointer; position: relative; transition: 0.3s; }
-        .card:hover { transform: scale(1.03); z-index: 2; }
-        .card img { width: 100%; height: 160px; object-fit: cover; border-radius: 6px; background: #222; }
-        .title { font-size: 12px; margin-top: 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #ccc; }
-        .badge { position: absolute; top: 5px; left: 5px; background: var(--red); color: white; font-size: 10px; padding: 2px 5px; border-radius: 3px; }
+        .section { padding: 15px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 10px; }
+        .card { cursor: pointer; position: relative; }
+        .card img { width: 100%; height: 160px; object-fit: cover; border-radius: 5px; background: #222; }
+        .title { font-size: 12px; margin-top: 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #ddd; }
 
-        /* Movie Box (Player) */
-        #movieBox { display: none; position: fixed; inset: 0; background: black; z-index: 5000; flex-direction: column; }
-        .player-frame { width: 100%; aspect-ratio: 16/9; background: black; border: none; }
+        /* Player Modal */
+        #playerModal { display: none; position: fixed; inset: 0; background: black; z-index: 5000; flex-direction: column; }
+        .p-header { padding: 10px; background: #222; display: flex; justify-content: space-between; align-items: center; }
         
-        .controls { padding: 15px; flex: 1; overflow-y: auto; background: #111; }
-        .server-opts { display: flex; gap: 10px; margin-bottom: 15px; overflow-x: auto; }
-        .srv-btn { padding: 8px 12px; background: #333; border-radius: 5px; font-size: 12px; cursor: pointer; border: 1px solid #444; white-space: nowrap; }
+        /* Video Container */
+        .video-wrapper { width: 100%; aspect-ratio: 16/9; background: black; position: relative; }
+        iframe, video { width: 100%; height: 100%; border: none; }
         
-        .ep-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(50px, 1fr)); gap: 8px; }
-        .ep-btn { background: #222; padding: 10px; text-align: center; border-radius: 4px; cursor: pointer; border: 1px solid #333; color: #ccc; }
-        .ep-btn.active-ep { background: var(--red); color: white; font-weight: bold; border-color: var(--red); }
+        .controls { padding: 15px; flex: 1; overflow-y: auto; }
+        .ep-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(50px, 1fr)); gap: 8px; margin-top: 10px; }
+        .ep-btn { background: #222; padding: 10px; text-align: center; border-radius: 4px; cursor: pointer; border: 1px solid #333; font-size: 12px; }
+        .active-ep { background: var(--red); color: white; border-color: var(--red); }
         
-        /* Close Btn */
-        .close-bar { padding: 15px; background: #000; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #333; }
+        /* Server Buttons */
+        .srv-list { display: flex; gap: 10px; margin-bottom: 10px; overflow-x: auto; }
+        .srv-btn { padding: 5px 10px; background: #333; border: 1px solid #555; border-radius: 4px; font-size: 11px; white-space: nowrap; cursor: pointer; }
     </style>
 </head>
 <body>
 
+    <div id="statusBar">🚀 System Checking...</div>
+
     <header>
         <div class="logo" onclick="location.reload()">REDOYFLIX</div>
-        <div style="font-size: 20px; color: #aaa;"><i class="fas fa-user-circle"></i></div>
+        <i class="fas fa-sync" onclick="location.reload()"></i>
     </header>
 
-    <div class="search-box">
-        <input type="text" id="search" placeholder="Search Anime or Movies..." onchange="handleSearch(this.value)">
+    <div class="section">
+        <h3 id="mainTitle">🔥 Trending Anime</h3>
+        <div class="grid" id="animeGrid"></div>
     </div>
 
-    <div class="menu">
-        <button class="menu-btn active" onclick="loadCategory('top-airing', this)">🔥 Trending</button>
-        <button class="menu-btn" onclick="loadCategory('movies', this)">🎬 Movies</button>
-        <button class="menu-btn" onclick="loadCategory('popular', this)">⭐ Popular</button>
-    </div>
-
-    <h3 style="padding: 0 20px; margin-bottom: 15px; color: #ddd;" id="catTitle">Trending Now</h3>
-    <div class="grid" id="animeGrid"></div>
-    
-    <div style="text-align:center; padding: 30px;">
-        <p id="status" style="color:#666; font-size:12px;">Server Status: 🟢 Online</p>
-    </div>
-
-    <div id="movieBox">
-        <div class="close-bar">
-            <span id="pTitle" style="font-weight: bold; max-width: 80%; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;">Playing...</span>
-            <button onclick="closePlayer()" style="background: red; color: white; border: none; padding: 5px 15px; border-radius: 3px; font-weight: bold;">CLOSE</button>
+    <div id="playerModal">
+        <div class="p-header">
+            <span id="pTitle" style="font-size:14px; overflow:hidden; white-space:nowrap; max-width:80%;">Playing...</span>
+            <button onclick="closePlayer()" style="background:red; color:white; border:none; padding:5px 12px; border-radius:3px;">X</button>
         </div>
         
-        <iframe id="iframePlayer" class="player-frame" allowfullscreen scrolling="no"></iframe>
-        
+        <div class="video-wrapper">
+            <iframe id="iframePlayer" style="display:none;" allowfullscreen></iframe>
+            <video id="directPlayer" controls playsinline style="display:none;"></video>
+        </div>
+
         <div class="controls">
-            <p style="color:#aaa; font-size:12px; margin-bottom:10px;">⚠️ If video fails, try changing server below:</p>
-            <div class="server-opts">
-                <div class="srv-btn" onclick="changeServer('embtaku')">Server 1 (Fast)</div>
-                <div class="srv-btn" onclick="changeServer('gogohd')">Server 2 (HD)</div>
-                <div class="srv-btn" onclick="changeServer('ru')">Server 3 (Backup)</div>
-            </div>
-            
-            <h3>Episodes</h3>
+            <p id="playerMsg" style="color:#aaa; font-size:11px; margin-bottom:5px;">Select an episode:</p>
+            <div class="srv-list" id="srvButtons" style="display:none;"></div>
             <div class="ep-grid" id="epList"></div>
         </div>
     </div>
 
     <script>
-        // আপনার Render সার্ভার লিংক
-        const API = 'https://consumet-api-latest-qhhs.onrender.com/anime/gogoanime';
-        let currentEpId = '';
+        // 1. সার্ভার লিস্ট (Zoro is usually best)
+        const SERVERS = [
+            { name: 'Zoro', type: 'direct', url: 'https://consumet-api-latest-qhhs.onrender.com/anime/zoro' },
+            { name: 'Gogo', type: 'iframe', url: 'https://consumet-api-latest-qhhs.onrender.com/anime/gogoanime' },
+            { name: 'Pahe', type: 'direct', url: 'https://consumet-api-latest-qhhs.onrender.com/anime/animepahe' }
+        ];
 
+        let activeServer = null;
+
+        function updateStatus(msg) { document.getElementById('statusBar').innerText = msg; }
+
+        // 2. অটোমেটিক সার্ভার চেকার
         async function init() {
-            loadCategory('top-airing', document.querySelector('.menu-btn'));
-        }
-
-        async function loadCategory(type, btn) {
-            // বাটন স্টাইল চেঞ্জ
-            document.querySelectorAll('.menu-btn').forEach(b => b.classList.remove('active'));
-            if(btn) btn.classList.add('active');
-            
-            document.getElementById('animeGrid').innerHTML = '<p style="color:#666;">Loading...</p>';
-            let endpoint = type;
-            
-            // টাইটেল সেট
-            if(type === 'top-airing') document.getElementById('catTitle').innerText = "🔥 Trending Now";
-            if(type === 'movies') document.getElementById('catTitle').innerText = "🎬 Latest Movies";
-            if(type === 'popular') document.getElementById('catTitle').innerText = "⭐ All Time Popular";
-
-            try {
-                const res = await fetch(`${API}/${endpoint}`);
-                const data = await res.json();
-                renderGrid(data.results);
-            } catch (e) {
-                document.getElementById('animeGrid').innerHTML = '<p style="color:red;">Server Error. Please Refresh.</p>';
+            for (const s of SERVERS) {
+                try {
+                    updateStatus(`Connecting to ${s.name}...`);
+                    const res = await fetch(`${s.url}/top-airing`);
+                    if(!res.ok) throw new Error();
+                    const data = await res.json();
+                    
+                    if(data.results.length > 0) {
+                        activeServer = s;
+                        updateStatus(`✅ Connected to ${s.name}!`);
+                        renderGrid(data.results);
+                        setTimeout(() => document.getElementById('statusBar').style.display = 'none', 3000);
+                        return;
+                    }
+                } catch(e) {}
             }
-        }
-
-        async function handleSearch(query) {
-            document.getElementById('catTitle').innerText = `🔎 Results for: ${query}`;
-            document.getElementById('animeGrid').innerHTML = '<p style="color:#666;">Searching...</p>';
-            try {
-                const res = await fetch(`${API}/${query}`);
-                const data = await res.json();
-                renderGrid(data.results);
-            } catch(e) { document.getElementById('animeGrid').innerHTML = 'Not Found'; }
+            updateStatus("❌ All Servers Busy. Please Wait & Refresh.");
         }
 
         function renderGrid(list) {
@@ -140,66 +113,110 @@
             list.forEach(item => {
                 grid.innerHTML += `
                     <div class="card" onclick="openPlayer('${item.id}')">
-                        <div class="badge">${item.releaseDate || 'Anime'}</div>
                         <img src="${item.image}" loading="lazy" onerror="this.src='https://via.placeholder.com/150'">
                         <div class="title">${item.title}</div>
                     </div>`;
             });
         }
 
+        // 3. স্মার্ট প্লেয়ার ওপেনার
         async function openPlayer(id) {
-            document.getElementById('movieBox').style.display = 'flex';
+            document.getElementById('playerModal').style.display = 'flex';
             document.getElementById('pTitle').innerText = "Loading Info...";
-            document.getElementById('epList').innerHTML = '<p style="color:#aaa;">Fetching Episodes...</p>';
+            document.getElementById('epList').innerHTML = '<p>Fetching Episodes...</p>';
             
             try {
-                const res = await fetch(`${API}/info/${id}`);
+                const res = await fetch(`${activeServer.url}/info/${id}`);
                 const data = await res.json();
                 document.getElementById('pTitle').innerText = data.title;
                 
                 const epList = document.getElementById('epList');
                 epList.innerHTML = '';
                 
-                // এপিসোড উল্টো করে দেখানো (নতুন আগে)
-                const episodes = data.episodes.reverse();
-                
+                // এপিসোড হ্যান্ডলিং
+                let episodes = data.episodes;
+                if(!episodes) throw new Error("No eps");
+                if(activeServer.name !== 'Zoro') episodes = episodes.reverse(); // Zoro already sorted
+
                 episodes.forEach(ep => {
                     const btn = document.createElement('div');
                     btn.className = 'ep-btn';
                     btn.innerText = ep.number;
-                    btn.onclick = () => playEpisode(ep.id, btn);
+                    btn.onclick = () => playEp(ep.id, btn);
                     epList.appendChild(btn);
                 });
 
-                if(episodes.length) playEpisode(episodes[0].id, epList.firstChild);
+                // ১ম এপিসোড অটো প্লে
+                if(episodes.length) playEp(episodes[0].id, epList.firstChild);
 
-            } catch(e) { alert("Error loading info!"); closePlayer(); }
+            } catch(e) { alert("Error loading details!"); closePlayer(); }
         }
 
-        function playEpisode(epId, btn) {
-            // Active বাটন মার্ক করা
+        // 4. ভিডিও প্লেয়ার লজিক (আসল ম্যাজিক)
+        async function playEp(epId, btn) {
             document.querySelectorAll('.ep-btn').forEach(b => b.classList.remove('active-ep'));
             if(btn) btn.classList.add('active-ep');
             
-            currentEpId = epId;
-            
-            // ডিফল্ট সার্ভার ১ চালানো
-            changeServer('embtaku');
+            const iframe = document.getElementById('iframePlayer');
+            const video = document.getElementById('directPlayer');
+            const srvBtns = document.getElementById('srvButtons');
+
+            // রিসেট
+            iframe.style.display = 'none'; iframe.src = '';
+            video.style.display = 'none'; video.pause();
+            srvBtns.style.display = 'none';
+
+            // লজিক চেক: সার্ভার কি Gogo নাকি অন্য?
+            if (activeServer.type === 'iframe') {
+                // Gogoanime হলে মুভি বক্স চলবে
+                iframe.style.display = 'block';
+                iframe.src = `https://embtaku.pro/streaming.php?id=${epId}`;
+                document.getElementById('playerMsg').innerText = "Playing via Movie Box";
+            } else {
+                // Zoro/Pahe হলে ডাইরেক্ট প্লেয়ার চলবে
+                video.style.display = 'block';
+                document.getElementById('playerMsg').innerText = "Loading Direct Stream...";
+                
+                try {
+                    const res = await fetch(`${activeServer.url}/watch/${epId}`);
+                    const data = await res.json();
+                    
+                    // সোর্স বাটন (Server 1, Server 2)
+                    srvBtns.style.display = 'flex';
+                    srvBtns.innerHTML = '';
+                    
+                    data.sources.forEach((src, idx) => {
+                        const b = document.createElement('div');
+                        b.className = 'srv-btn';
+                        b.innerText = `Server ${idx+1} (${src.quality || 'auto'})`;
+                        b.onclick = () => loadVideoStream(src.url);
+                        srvBtns.appendChild(b);
+                    });
+
+                    // ডিফল্ট স্ট্রিম
+                    const defaultSrc = data.sources.find(s => s.quality === 'default' || s.quality === 'auto') || data.sources[0];
+                    if(defaultSrc) loadVideoStream(defaultSrc.url);
+
+                } catch(e) { alert("Stream failed. Try another anime."); }
+            }
         }
 
-        function changeServer(type) {
-            // Magic Movie Box URL Generator
-            let url = '';
-            if(type === 'embtaku') url = `https://embtaku.pro/streaming.php?id=${currentEpId}`;
-            if(type === 'gogohd') url = `https://anitaku.to/streaming.php?id=${currentEpId}`;
-            if(type === 'ru') url = `https://gogohd.net/streaming.php?id=${currentEpId}`;
-            
-            document.getElementById('iframePlayer').src = url;
+        function loadVideoStream(url) {
+            const video = document.getElementById('directPlayer');
+            if(Hls.isSupported()) {
+                const hls = new Hls();
+                hls.loadSource(url);
+                hls.attachMedia(video);
+            } else {
+                video.src = url;
+            }
+            video.play();
         }
 
         function closePlayer() {
-            document.getElementById('movieBox').style.display = 'none';
+            document.getElementById('playerModal').style.display = 'none';
             document.getElementById('iframePlayer').src = "";
+            document.getElementById('directPlayer').pause();
         }
 
         init();
