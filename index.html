@@ -4,77 +4,97 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="referrer" content="no-referrer">
-    
-    <title>REDOYFLIX - Unlimited Anime</title>
+    <title>REDOYFLIX - Unlimited</title>
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;700&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
     <style>
-        :root { --red: #ff0000; --dark: #0a0a0a; }
-        body { background: var(--dark); color: white; font-family: 'Roboto', sans-serif; margin: 0; }
+        :root { --red: #E50914; --dark: #141414; }
+        body { background: var(--dark); color: white; font-family: 'Roboto', sans-serif; margin: 0; padding-bottom: 50px; }
         
-        /* Status Bar */
-        #statusBar { background: #222; color: #00e600; text-align: center; padding: 5px; font-size: 12px; font-weight: bold; position: fixed; width: 100%; top: 0; z-index: 2000; }
-        
-        header { padding: 40px 20px 10px; display: flex; align-items: center; justify-content: space-between; background: linear-gradient(black, transparent); }
-        .logo { font-family: 'Oswald'; font-size: 28px; color: var(--red); letter-spacing: 2px; cursor: pointer; }
-        
-        /* Search */
-        #searchBox { background: #333; border: none; padding: 8px 15px; border-radius: 20px; color: white; width: 40%; transition: 0.3s; }
-        #searchBox:focus { width: 60%; background: #444; outline: none; }
+        /* Debug Bar */
+        #statusBar { background: #333; color: #00ff00; text-align: center; padding: 5px; font-size: 12px; font-weight: bold; position: fixed; width: 100%; top: 0; z-index: 3000; }
 
-        .hero { height: 50vh; display: flex; align-items: flex-end; padding: 20px; background-size: cover; background-position: center; position: relative; }
+        header { padding: 40px 20px 15px; background: linear-gradient(black, transparent); position: sticky; top: 0; z-index: 100; }
+        .logo { font-family: 'Oswald'; font-size: 32px; color: var(--red); letter-spacing: 2px; cursor: pointer; text-shadow: 2px 2px 5px black; }
+        
+        .search-container { margin-top: 10px; display: flex; gap: 10px; }
+        input { background: #333; border: 1px solid #444; padding: 10px; border-radius: 5px; color: white; width: 100%; }
+        
+        /* Hero */
+        .hero { height: 45vh; display: flex; align-items: flex-end; padding: 20px; background-size: cover; background-position: center; position: relative; margin-bottom: 20px; }
         .hero::before { content: ''; position: absolute; inset: 0; background: linear-gradient(to top, var(--dark), transparent); }
         .hero-content { position: relative; z-index: 2; width: 100%; }
-        .play-btn { background: var(--red); color: white; border: none; padding: 10px 25px; border-radius: 5px; font-weight: bold; margin-top: 10px; cursor: pointer; }
+        
+        /* Grid */
+        .section { padding: 0 15px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 12px; }
+        .card { cursor: pointer; position: relative; }
+        .card img { width: 100%; height: 150px; object-fit: cover; border-radius: 6px; background: #222; }
+        .title { font-size: 12px; margin-top: 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #ccc; }
 
-        .section { padding: 20px; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 15px; }
-        .card { cursor: pointer; position: relative; transition: 0.3s; }
-        .card:hover { transform: scale(1.05); }
-        .card img { width: 100%; height: 170px; object-fit: cover; border-radius: 6px; background: #222; }
-        .title { font-size: 13px; margin-top: 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #ddd; }
+        /* Load More Btn */
+        .load-btn { display: block; width: 80%; margin: 30px auto; padding: 12px; background: #222; color: white; border: 1px solid #444; border-radius: 5px; cursor: pointer; font-weight: bold; }
+        .load-btn:hover { background: var(--red); border-color: var(--red); }
 
-        /* Player */
-        #playerModal { display: none; position: fixed; inset: 0; background: black; z-index: 5000; flex-direction: column; }
-        #videoPlayer { width: 100%; aspect-ratio: 16/9; background: black; }
-        .controls { padding: 10px; background: #111; display: flex; justify-content: space-between; align-items: center; }
-        .ep-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(50px, 1fr)); gap: 8px; padding: 15px; overflow-y: auto; }
-        .ep-btn { background: #222; padding: 10px; font-size: 14px; text-align: center; border-radius: 4px; cursor: pointer; border: 1px solid #333; color: #fff; }
-        .active-ep { background: var(--red); border-color: var(--red); font-weight: bold; }
+        /* Player Modal */
+        #playerModal { display: none; position: fixed; inset: 0; background: black; z-index: 5000; flex-direction: column; overflow-y: auto; }
+        .video-box { position: sticky; top: 0; background: black; z-index: 10; width: 100%; }
+        video { width: 100%; aspect-ratio: 16/9; background: black; }
+        
+        .controls { padding: 15px; }
+        .server-list { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 10px; margin-bottom: 10px; }
+        .srv-btn { padding: 5px 10px; background: #333; border: 1px solid #555; border-radius: 4px; font-size: 12px; white-space: nowrap; cursor: pointer; }
+        .srv-btn.active { background: var(--red); border-color: var(--red); }
+        
+        .ep-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(50px, 1fr)); gap: 8px; margin-top: 15px; }
+        .ep-btn { background: #222; padding: 10px; text-align: center; border-radius: 4px; cursor: pointer; border: 1px solid #333; }
+        .ep-btn.active-ep { background: var(--red); color: white; }
     </style>
 </head>
 <body>
 
-    <div id="statusBar">🚀 Checking Servers...</div>
+    <div id="statusBar">🚀 Initializing RedoyFlix...</div>
 
     <header>
         <div class="logo" onclick="location.reload()">REDOYFLIX</div>
-        <input type="text" id="searchBox" placeholder="Search..." onchange="handleSearch(this.value)">
+        <div class="search-container">
+            <input type="text" id="searchBox" placeholder="Search anime..." onchange="handleSearch(this.value)">
+        </div>
     </header>
 
     <div class="hero" id="hero">
         <div class="hero-content">
             <h1 id="heroTitle">Connecting...</h1>
-            <button class="play-btn" onclick="document.querySelector('.section').scrollIntoView()">BROWSE ANIME</button>
         </div>
     </div>
 
     <div class="section">
-        <h3 id="listTitle">🔥 Trending Now</h3>
+        <h3>🔥 Trending Anime</h3>
         <div class="grid" id="animeGrid"></div>
+        <button class="load-btn" onclick="loadMore()">LOAD MORE ANIME</button>
     </div>
 
     <div id="playerModal">
-        <div class="controls">
-            <span id="pTitle">Playing...</span>
-            <button onclick="closePlayer()" style="background:none; color:white; border:none; font-size: 20px;">✖</button>
+        <div class="video-box">
+            <div style="padding:10px; display:flex; justify-content:space-between; align-items:center; background:#111;">
+                <span id="pTitle" style="font-size:14px; font-weight:bold;">Playing...</span>
+                <button onclick="closePlayer()" style="background:none; border:none; color:white; font-size:20px;">✖</button>
+            </div>
+            <video id="videoPlayer" controls playsinline crossorigin="anonymous"></video>
         </div>
-        <video id="videoPlayer" controls autoplay playsinline></video>
-        <div class="ep-grid" id="epList"></div>
+        
+        <div class="controls">
+            <p style="color:#aaa; font-size:12px; margin-bottom:5px;">⚠️ Video not playing? Try other servers:</p>
+            <div class="server-list" id="sourceList"></div>
+            <hr style="border-color:#333; margin:10px 0;">
+            <h3>Episodes</h3>
+            <div class="ep-grid" id="epList"></div>
+        </div>
     </div>
 
     <script>
+        // সার্ভার লিস্ট (Zoro is best for video)
         const SERVERS = [
             { name: 'Zoro', url: 'https://consumet-api-latest-qhhs.onrender.com/anime/zoro' },
             { name: 'Gogo', url: 'https://consumet-api-latest-qhhs.onrender.com/anime/gogoanime' },
@@ -82,66 +102,77 @@
         ];
 
         let currentAPI = '';
+        let currentPage = 1;
+        let isSearching = false;
 
-        async function updateStatus(msg) {
-            document.getElementById('statusBar').innerText = msg;
-        }
+        function updateStatus(msg) { document.getElementById('statusBar').innerText = msg; }
 
-        // সার্ভার চেকার (ম্যাজিক লজিক)
+        // ১. সার্ভার কানেকশন (Magic Check)
         async function init() {
             for (const server of SERVERS) {
                 try {
-                    updateStatus(`Connecting to ${server.name}...`);
-                    const res = await fetch(`${server.url}/top-airing`);
-                    if (!res.ok) throw new Error("Failed");
+                    updateStatus(`Trying ${server.name}...`);
+                    const res = await fetch(`${server.url}/top-airing?page=1`);
+                    if(!res.ok) throw new Error();
                     const data = await res.json();
-                    
-                    if (data.results && data.results.length > 0) {
+                    if(data.results.length > 0) {
                         currentAPI = server.url;
-                        updateStatus(`✅ Connected to ${server.name}! Loading Images...`);
+                        updateStatus(`✅ Connected to ${server.name}`);
                         renderApp(data.results);
                         setTimeout(() => document.getElementById('statusBar').style.display = 'none', 2000);
-                        return; // কাজ হয়ে গেছে, লুপ থামাও
+                        return;
                     }
-                } catch (e) { console.log(`${server.name} Failed, trying next...`); }
+                } catch(e) {}
             }
-            updateStatus("⚠️ All Servers Busy. Please Refresh.");
+            updateStatus("⚠️ Server Busy! Please Refresh.");
         }
 
-        function renderApp(list) {
-            if(!list.length) return;
-            
-            // ব্যানার সেট
-            const hero = list[0];
-            document.getElementById('hero').style.backgroundImage = `url('${hero.image}')`;
-            document.getElementById('heroTitle').innerText = hero.title;
+        function renderApp(list, append = false) {
+            if(!append) {
+                const hero = list[0];
+                document.getElementById('hero').style.backgroundImage = `url('${hero.image}')`;
+                document.getElementById('heroTitle').innerText = hero.title;
+                document.getElementById('animeGrid').innerHTML = '';
+            }
 
-            // গ্রিড সেট
             const grid = document.getElementById('animeGrid');
-            grid.innerHTML = '';
             list.forEach(anime => {
                 grid.innerHTML += `
                     <div class="card" onclick="loadAnime('${anime.id}')">
-                        <img src="${anime.image}" loading="lazy" onerror="this.src='https://via.placeholder.com/150x200?text=No+Image'">
+                        <img src="${anime.image}" loading="lazy" onerror="this.src='https://via.placeholder.com/100x150?text=Error'">
                         <div class="title">${anime.title}</div>
                     </div>`;
             });
         }
 
+        // ২. লোড মোর ফাংশন
+        async function loadMore() {
+            if(isSearching) return alert("Search mode: cannot load more yet.");
+            currentPage++;
+            updateStatus(`Loading Page ${currentPage}...`);
+            try {
+                const res = await fetch(`${currentAPI}/top-airing?page=${currentPage}`);
+                const data = await res.json();
+                renderApp(data.results, true); // true = append mode
+                updateStatus("Done");
+            } catch(e) { alert("No more pages!"); }
+        }
+
         async function handleSearch(query) {
+            isSearching = true;
             updateStatus("Searching...");
             try {
                 const res = await fetch(`${currentAPI}/${query}`);
                 const data = await res.json();
-                document.getElementById('listTitle').innerText = `Results for: ${query}`;
                 renderApp(data.results);
-                updateStatus("Search Complete");
-            } catch(e) { updateStatus("Not Found!"); }
+                updateStatus("Found!");
+            } catch(e) { updateStatus("Not found"); }
         }
 
+        // ৩. প্লেয়ার সেটআপ
         async function loadAnime(id) {
             document.getElementById('playerModal').style.display = 'flex';
-            document.getElementById('epList').innerHTML = '<p style="color:#aaa">Loading Episodes...</p>';
+            document.getElementById('epList').innerHTML = '<p>Loading...</p>';
             
             try {
                 const res = await fetch(`${currentAPI}/info/${id}`);
@@ -150,9 +181,7 @@
                 
                 const epList = document.getElementById('epList');
                 epList.innerHTML = '';
-                
-                // এপিসোড উল্টো করে দেখানো (নতুন আগে)
-                const episodes = data.episodes.reverse(); 
+                const episodes = data.episodes.reverse(); // Newest first
                 
                 episodes.forEach(ep => {
                     const btn = document.createElement('div');
@@ -162,33 +191,50 @@
                     epList.appendChild(btn);
                 });
                 
-                // ১ম এপিসোড প্লে
                 if(episodes.length) playEp(episodes[episodes.length-1].id, epList.lastChild);
-
-            } catch(e) { alert("Error loading info!"); closePlayer(); }
+            } catch(e) { alert("Error loading info"); closePlayer(); }
         }
 
         async function playEp(epId, btn) {
             document.querySelectorAll('.ep-btn').forEach(b => b.classList.remove('active-ep'));
             if(btn) btn.classList.add('active-ep');
-            
+            document.getElementById('sourceList').innerHTML = 'Loading sources...';
+
             try {
                 const res = await fetch(`${currentAPI}/watch/${epId}`);
                 const data = await res.json();
                 
-                // ভিডিও সোর্স খোঁজা
-                const src = data.sources.find(s => s.quality === 'auto' || s.quality === 'default') || data.sources[0];
-                const video = document.getElementById('videoPlayer');
+                // সোর্স বাটন তৈরি করা (Server 1, Server 2...)
+                const sList = document.getElementById('sourceList');
+                sList.innerHTML = '';
+                
+                data.sources.forEach((src, index) => {
+                    const sBtn = document.createElement('button');
+                    sBtn.className = 'srv-btn';
+                    sBtn.innerText = `Server ${index + 1} (${src.quality})`;
+                    sBtn.onclick = () => loadVideo(src.url, sBtn);
+                    sList.appendChild(sBtn);
+                });
 
-                if(Hls.isSupported()) {
-                    const hls = new Hls();
-                    hls.loadSource(src.url);
-                    hls.attachMedia(video);
-                } else {
-                    video.src = src.url;
-                }
-                video.play();
-            } catch(e) { console.log("Stream Error"); }
+                // অটোমেটিক ১ম টা প্লে করা
+                if(data.sources.length) loadVideo(data.sources[0].url, sList.firstChild);
+
+            } catch(e) { document.getElementById('sourceList').innerHTML = 'Video not found!'; }
+        }
+
+        function loadVideo(url, btn) {
+            document.querySelectorAll('.srv-btn').forEach(b => b.classList.remove('active'));
+            if(btn) btn.classList.add('active');
+
+            const video = document.getElementById('videoPlayer');
+            if(Hls.isSupported()) {
+                const hls = new Hls();
+                hls.loadSource(url);
+                hls.attachMedia(video);
+            } else {
+                video.src = url;
+            }
+            video.play();
         }
 
         function closePlayer() {
