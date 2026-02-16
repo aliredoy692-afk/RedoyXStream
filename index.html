@@ -3,213 +3,174 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>REDOYFLIX - VIP Player</title>
+    <title>REDOYFLIX - Multi Server</title>
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;700&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;700&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
     <style>
-        :root { --primary: #E50914; --dark: #141414; --gray: #808080; }
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { background-color: var(--dark); color: white; font-family: 'Roboto', sans-serif; overflow-x: hidden; }
+        :root { --red: #ff0000; --dark: #0a0a0a; }
+        body { background: var(--dark); color: white; font-family: 'Roboto', sans-serif; margin: 0; }
         
-        /* Header */
-        header { padding: 20px 4%; display: flex; justify-content: space-between; align-items: center; background: linear-gradient(to bottom, rgba(0,0,0,0.9), transparent); position: fixed; width: 100%; top: 0; z-index: 100; }
-        .logo { font-family: 'Oswald', sans-serif; color: var(--primary); font-size: 30px; font-weight: bold; letter-spacing: 2px; text-shadow: 2px 2px 5px black; cursor: pointer; }
+        /* Status Bar (Debug) */
+        #statusBar { background: #333; color: yellow; text-align: center; padding: 5px; font-size: 12px; font-weight: bold; position: fixed; width: 100%; top: 0; z-index: 2000; }
         
-        /* Search */
-        .search-box { position: relative; width: 40%; }
-        .search-box input { width: 100%; padding: 10px 15px; border-radius: 20px; border: 1px solid #333; background: rgba(0,0,0,0.7); color: white; outline: none; transition: 0.3s; }
-        .search-box input:focus { border-color: var(--primary); background: black; }
-
-        /* Hero Banner */
-        .hero { height: 60vh; background-size: cover; background-position: center; position: relative; display: flex; align-items: flex-end; }
-        .hero::after { content: ''; position: absolute; inset: 0; background: linear-gradient(to top, var(--dark), transparent); }
-        .hero-content { position: relative; z-index: 10; padding: 0 4% 40px; max-width: 600px; }
-        .hero h1 { font-family: 'Oswald', sans-serif; font-size: 40px; margin-bottom: 10px; text-transform: uppercase; }
-        .play-btn { background: var(--primary); color: white; border: none; padding: 10px 25px; font-size: 16px; font-weight: bold; cursor: pointer; border-radius: 5px; display: inline-flex; align-items: center; gap: 10px; transition: 0.3s; }
-        .play-btn:hover { transform: scale(1.05); background: red; }
-
-        /* Sections */
-        .section { padding: 20px 4%; }
-        .section h2 { font-size: 20px; margin-bottom: 15px; border-left: 4px solid var(--primary); padding-left: 10px; }
+        header { padding: 40px 20px 10px; display: flex; align-items: center; justify-content: space-between; background: linear-gradient(black, transparent); }
+        .logo { font-family: 'Oswald'; font-size: 28px; color: var(--red); letter-spacing: 2px; }
         
-        /* Poster Grid */
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 15px; }
-        .card { cursor: pointer; transition: 0.3s; position: relative; overflow: hidden; border-radius: 8px; }
-        .card:hover { transform: scale(1.05); z-index: 2; box-shadow: 0 10px 20px rgba(0,0,0,0.5); }
-        .card img { width: 100%; height: 200px; object-fit: cover; }
-        .card-info { position: absolute; bottom: 0; left: 0; right: 0; padding: 10px; background: linear-gradient(to top, black, transparent); font-size: 12px; font-weight: bold; }
+        .hero { height: 50vh; display: flex; align-items: flex-end; padding: 20px; background-size: cover; background-position: center; position: relative; }
+        .hero::before { content: ''; position: absolute; inset: 0; background: linear-gradient(to top, var(--dark), transparent); }
+        .hero-content { position: relative; z-index: 2; width: 100%; }
+        .play-btn { background: var(--red); color: white; border: none; padding: 8px 20px; border-radius: 4px; font-weight: bold; margin-top: 10px; cursor: pointer; }
 
-        /* Player Modal */
-        #videoModal { display: none; position: fixed; inset: 0; background: black; z-index: 2000; flex-direction: column; }
-        .player-header { padding: 15px; display: flex; justify-content: space-between; background: #222; }
-        .close-btn { color: white; font-size: 24px; cursor: pointer; }
-        #videoPlayer { width: 100%; height: 40vh; background: black; }
-        .episodes-container { flex: 1; overflow-y: auto; padding: 20px; background: #111; }
-        .ep-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(50px, 1fr)); gap: 10px; }
-        .ep-btn { background: #333; padding: 10px; text-align: center; border-radius: 5px; cursor: pointer; font-size: 14px; }
-        .ep-btn:hover, .ep-btn.active { background: var(--primary); }
+        .section { padding: 20px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 10px; }
+        .card { cursor: pointer; position: relative; }
+        .card img { width: 100%; height: 160px; object-fit: cover; border-radius: 6px; transition: 0.3s; }
+        .card:hover img { transform: scale(1.05); opacity: 0.8; }
+        .title { font-size: 12px; margin-top: 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #ddd; }
 
-        /* Loading */
-        #loader { text-align: center; padding: 50px; color: #666; font-size: 18px; }
+        /* Player */
+        #playerModal { display: none; position: fixed; inset: 0; background: black; z-index: 5000; flex-direction: column; }
+        #videoPlayer { width: 100%; aspect-ratio: 16/9; background: black; }
+        .ep-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 5px; padding: 10px; overflow-y: auto; }
+        .ep-btn { background: #222; padding: 8px; font-size: 12px; text-align: center; border-radius: 3px; cursor: pointer; border: 1px solid #333; }
+        .active-ep { background: var(--red); border-color: var(--red); }
     </style>
 </head>
 <body>
 
+    <div id="statusBar">🚀 System Initializing...</div>
+
     <header>
         <div class="logo" onclick="location.reload()">REDOYFLIX</div>
-        <div class="search-box">
-            <input type="text" id="searchInput" placeholder="Search anime..." onchange="handleSearch(this.value)">
-        </div>
+        <i class="fas fa-search" style="font-size: 20px;"></i>
     </header>
 
-    <div class="hero" id="heroSection" style="background-image: url('https://c4.wallpaperflare.com/wallpaper/295/163/719/anime-anime-boys-picture-in-picture-kimetsu-no-yaiba-kamado-tanjir%C5%8D-hd-wallpaper-preview.jpg');">
+    <div class="hero" id="hero">
         <div class="hero-content">
-            <h1 id="heroTitle">Demon Slayer</h1>
-            <p id="heroDesc">Action • Supernatural • 2024</p>
-            <button class="play-btn" onclick="document.getElementById('trending').scrollIntoView()">🔥 Browse Now</button>
+            <h1 id="heroTitle">Loading...</h1>
+            <button class="play-btn">WATCH NOW</button>
         </div>
     </div>
 
-    <div id="mainContainer">
-        <div id="loader"><i class="fas fa-circle-notch fa-spin"></i> Connecting to Redoy's Server...</div>
-
-        <div class="section">
-            <h2>🔥 Trending Now</h2>
-            <div class="grid" id="trending"></div>
-        </div>
+    <div class="section">
+        <h3>🔥 Trending Anime</h3>
+        <div class="grid" id="animeGrid"></div>
     </div>
 
-    <div id="videoModal">
-        <div class="player-header">
-            <span id="playerTitle">Playing Video</span>
-            <i class="fas fa-times close-btn" onclick="closePlayer()"></i>
+    <div id="playerModal">
+        <div style="padding:10px; background:#111; display:flex; justify-content:space-between;">
+            <span id="pTitle">Playing...</span>
+            <button onclick="document.getElementById('playerModal').style.display='none'" style="background:red; color:white; border:none; padding:5px 10px;">X</button>
         </div>
         <video id="videoPlayer" controls autoplay></video>
-        <div class="episodes-container">
-            <h3>Episodes</h3><br>
-            <div class="ep-grid" id="epList"></div>
-        </div>
+        <div class="ep-grid" id="epList"></div>
     </div>
 
     <script>
-        // ✅ আপনার Render সার্ভার লিংক
-        const BASE_URL = 'https://consumet-api-latest-qhhs.onrender.com/anime/zoro'; 
+        // আপনার সার্ভার এবং ব্যাকআপ সার্ভার লিস্ট
+        const SERVERS = [
+            { name: 'Zoro', url: 'https://consumet-api-latest-qhhs.onrender.com/anime/zoro' },
+            { name: 'Gogo', url: 'https://consumet-api-latest-qhhs.onrender.com/anime/gogoanime' },
+            { name: 'AnimePahe', url: 'https://consumet-api-latest-qhhs.onrender.com/anime/animepahe' }
+        ];
 
-        async function init() {
+        let currentAPI = '';
+
+        async function updateStatus(msg) {
+            document.getElementById('statusBar').innerText = msg;
+        }
+
+        async function checkServer(server) {
             try {
-                // ১. ট্রেন্ডিং এনিমে আনা (Zoro সোর্স থেকে)
-                const res = await fetch(`${BASE_URL}/top-airing`);
+                updateStatus(`Trying Server: ${server.name}...`);
+                const res = await fetch(`${server.url}/top-airing`);
+                if (!res.ok) throw new Error("Failed");
                 const data = await res.json();
+                if (!data.results || data.results.length === 0) throw new Error("Empty");
                 
-                document.getElementById('loader').style.display = 'none';
-                displayAnime(data.results, 'trending');
-
-                // ব্যানার আপডেট করা
-                if(data.results.length > 0) {
-                    const hero = data.results[0];
-                    document.getElementById('heroSection').style.backgroundImage = `url('${hero.image}')`;
-                    document.getElementById('heroTitle').innerText = hero.title;
-                }
-            } catch (err) {
-                console.error(err);
-                document.getElementById('loader').innerHTML = `⚠️ Server Error. <button onclick="location.reload()" style="padding:5px 10px;">Retry</button>`;
+                return { success: true, data: data.results, url: server.url };
+            } catch (e) {
+                return { success: false };
             }
         }
 
-        function displayAnime(list, elementId) {
-            const container = document.getElementById(elementId);
-            container.innerHTML = '';
+        async function init() {
+            for (const server of SERVERS) {
+                const result = await checkServer(server);
+                if (result.success) {
+                    currentAPI = result.url;
+                    updateStatus(`✅ Connected to ${server.name}! Enjoy.`);
+                    renderApp(result.data);
+                    setTimeout(() => document.getElementById('statusBar').style.display = 'none', 3000);
+                    return;
+                }
+            }
+            updateStatus("❌ All Servers Busy! Please refresh in 1 min.");
+        }
+
+        function renderApp(list) {
+            // 1. Set Hero
+            const hero = list[0];
+            document.getElementById('hero').style.backgroundImage = `url('${hero.image}')`;
+            document.getElementById('heroTitle').innerText = hero.title;
+
+            // 2. Set Grid
+            const grid = document.getElementById('animeGrid');
+            grid.innerHTML = '';
             list.forEach(anime => {
-                const card = document.createElement('div');
-                card.className = 'card';
-                card.innerHTML = `
-                    <img src="${anime.image}" loading="lazy" alt="${anime.title}">
-                    <div class="card-info">${anime.title}</div>
-                `;
-                card.onclick = () => loadEpisodes(anime.id, anime.title);
-                container.appendChild(card);
+                grid.innerHTML += `
+                    <div class="card" onclick="loadAnime('${anime.id}')">
+                        <img src="${anime.image}" loading="lazy">
+                        <div class="title">${anime.title}</div>
+                    </div>`;
             });
         }
 
-        async function handleSearch(query) {
-            document.getElementById('loader').style.display = 'block';
-            document.getElementById('loader').innerText = "Searching...";
-            document.getElementById('trending').innerHTML = '';
+        async function loadAnime(id) {
+            document.getElementById('playerModal').style.display = 'flex';
+            updateStatus("Loading Episodes...");
             
             try {
-                const res = await fetch(`${BASE_URL}/${query}`);
+                const res = await fetch(`${currentAPI}/info/${id}`);
                 const data = await res.json();
-                document.getElementById('loader').style.display = 'none';
-                displayAnime(data.results, 'trending');
-            } catch (err) {
-                document.getElementById('loader').innerText = "Not found!";
-            }
-        }
-
-        // ২. এপিসোড লোড করা
-        async function loadEpisodes(id, title) {
-            document.getElementById('videoModal').style.display = 'flex';
-            document.getElementById('playerTitle').innerText = "Loading Info...";
-            document.getElementById('epList').innerHTML = '<p style="color:#666;">Fetching episodes...</p>';
-
-            try {
-                const res = await fetch(`${BASE_URL}/info?id=${id}`);
-                const data = await res.json();
-                document.getElementById('playerTitle').innerText = title;
+                document.getElementById('pTitle').innerText = data.title;
                 
                 const epList = document.getElementById('epList');
                 epList.innerHTML = '';
-
                 data.episodes.forEach(ep => {
-                    const btn = document.createElement('div');
+                    const btn = document.createElement('button');
                     btn.className = 'ep-btn';
-                    btn.innerText = `Ep ${ep.number}`;
-                    btn.onclick = () => playVideo(ep.id, btn);
+                    btn.innerText = ep.number;
+                    btn.onclick = () => playEp(ep.id, btn);
                     epList.appendChild(btn);
                 });
-
-                // প্রথম এপিসোড অটো প্লে
-                if(data.episodes.length > 0) playVideo(data.episodes[0].id);
-
-            } catch (err) {
-                alert("Could not load episodes. Try another anime.");
-                closePlayer();
-            }
-        }
-
-        // ৩. ভিডিও প্লে করা (আপনার প্লেয়ারে)
-        async function playVideo(epId, btnElement = null) {
-            if(btnElement) {
-                document.querySelectorAll('.ep-btn').forEach(b => b.classList.remove('active'));
-                btnElement.classList.add('active');
-            }
-
-            try {
-                const res = await fetch(`${BASE_URL}/watch?episodeId=${epId}`);
-                const data = await res.json();
                 
-                // কোয়ালিটি অটো সিলেক্ট করা
-                const stream = data.sources.find(s => s.quality === 'auto') || data.sources.find(s => s.quality === 'default') || data.sources[0];
-                const video = document.getElementById('videoPlayer');
+                if(data.episodes.length) playEp(data.episodes[0].id, epList.firstChild);
 
-                if (Hls.isSupported()) {
-                    const hls = new Hls();
-                    hls.loadSource(stream.url);
-                    hls.attachMedia(video);
-                } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-                    video.src = stream.url;
-                }
-                video.play();
-            } catch (err) {
-                console.log("Video Load Error", err);
-            }
+            } catch(e) { alert("Error loading info!"); }
         }
 
-        function closePlayer() {
-            document.getElementById('videoModal').style.display = 'none';
-            document.getElementById('videoPlayer').pause();
-            document.getElementById('videoPlayer').src = "";
+        async function playEp(epId, btn) {
+            document.querySelectorAll('.ep-btn').forEach(b => b.classList.remove('active-ep'));
+            if(btn) btn.classList.add('active-ep');
+            
+            try {
+                updateStatus("Fetching Video Link...");
+                const res = await fetch(`${currentAPI}/watch/${epId}`);
+                const data = await res.json();
+                const src = data.sources.find(s => s.quality === 'auto' || s.quality === 'default').url;
+                
+                const video = document.getElementById('videoPlayer');
+                if(Hls.isSupported()) {
+                    const hls = new Hls();
+                    hls.loadSource(src);
+                    hls.attachMedia(video);
+                } else video.src = src;
+                
+                video.play();
+                updateStatus("Playing Now 🍿");
+            } catch(e) { alert("Video link failed!"); }
         }
 
         init();
