@@ -13,31 +13,37 @@
         :root { --primary: #ff0040; --bg: #000000; --card: #0a0a0a; --text: #e0e0e0; }
         body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', sans-serif; margin: 0; overflow-x: hidden; padding-bottom: 80px; }
 
+        /* SERVER SELECTION */
         #serverSelector { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 9000; flex-direction: column; align-items: center; justify-content: center; backdrop-filter: blur(10px); }
         .selector-box { text-align: center; width: 90%; }
         .server-btn { width: 100%; max-width: 300px; padding: 15px; margin: 10px 0; border: 1px solid var(--primary); border-radius: 10px; background: #111; color: white; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; transition: 0.2s; }
         .server-btn:active { transform: scale(0.95); }
 
+        /* CONNECTING ANIMATION */
         #connectingScreen { display: none; position: fixed; inset: 0; background: #000000; z-index: 99999; flex-direction: column; align-items: center; justify-content: center; }
         .loader { width: 50px; height: 50px; border: 5px solid #222; border-top: 5px solid var(--primary); border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 20px; }
         .connecting-text { color: var(--primary); font-size: 16px; font-weight: 900; letter-spacing: 1px; animation: pulse 1s infinite; text-transform: uppercase; }
 
+        /* TOP BAR */
         .top-bar { padding: 12px 15px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; background: rgba(0,0,0,0.95); z-index: 1000; border-bottom: 1px solid #1a1a1a; }
         .logo { font-size: 20px; font-weight: 900; color: white; }
         .logo span { color: var(--primary); }
         .search-icon { font-size: 20px; color: white; cursor: pointer; }
 
+        /* SEARCH OVERLAY */
         #searchOverlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 2000; justify-content: center; align-items: center; flex-direction: column; }
         .search-box-container { display: flex; width: 85%; gap: 10px; position: relative; }
         .search-input { flex: 1; padding: 15px; background: #222; border: 1px solid #444; color: white; border-radius: 8px; outline: none; font-size: 16px; }
         .go-btn { padding: 0 25px; background: var(--primary); color: white; border: none; border-radius: 8px; font-weight: 900; cursor: pointer; font-size: 16px; }
         .close-search { position: absolute; top: -50px; right: 0; font-size: 30px; cursor: pointer; color: #fff; }
 
+        /* HERO */
         .hero-slider { position: relative; width: 100%; height: 260px; overflow: hidden; mask-image: linear-gradient(to bottom, black 80%, transparent 100%); }
         .slide { position: absolute; inset: 0; background-size: cover; background-position: center; opacity: 0; transition: 1s; }
         .slide.active { opacity: 1; }
         .slide-content { position: absolute; bottom: 30px; left: 15px; z-index: 10; }
 
+        /* SECTIONS */
         .section { margin-top: 25px; padding-left: 15px; }
         .sec-head { display: flex; justify-content: space-between; align-items: center; padding-right: 15px; margin-bottom: 12px; }
         .sec-title { font-size: 16px; font-weight: 800; border-left: 3px solid var(--primary); padding-left: 8px; color: #fff; }
@@ -58,12 +64,14 @@
         .info-row { display: flex; align-items: center; font-size: 12px; color: #aaa; margin-top: 4px; }
         .info-label { color: var(--primary); font-weight: bold; width: 55px; display: inline-block; }
 
+        /* PLAYER MODAL */
         #playerModal { display: none; position: fixed; inset: 0; background: black; z-index: 9999; flex-direction: column; }
         #stickerBar { width: 100%; height: 50px; background: #000; display: flex; align-items: center; justify-content: center; border-bottom: 2px solid var(--primary); color: var(--primary); font-weight: 900; z-index: 10001; }
         .back-btn { position: absolute; left: 15px; color: white; font-size: 24px; cursor: pointer; }
         .iframe-container { flex-grow: 1; width: 100%; background: #000; overflow: hidden; position: relative; }
         iframe { width: 100%; height: calc(100% + 100px); border: none; margin-top: -65px; }
 
+        /* PROFILE & NAV */
         .profile-box { text-align: center; padding: 50px 20px; }
         .avatar { width: 80px; height: 80px; background: var(--primary); border-radius: 50%; margin: 0 auto 20px; display: flex; align-items: center; justify-content: center; font-size: 30px; font-weight: bold; }
         .login-btn { background: white; color: black; padding: 10px 30px; border-radius: 30px; border: none; font-weight: bold; cursor: pointer; }
@@ -73,12 +81,16 @@
         .nav-item.active { color: var(--primary); }
         .nav-item i { font-size: 18px; margin-bottom: 3px; }
 
+        /* VIEWS & LOAD MORE */
         .view { display: none; }
         #homeView { display: block; }
         #searchView { display: none; padding: 15px; }
         .search-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
         #loadMoreBtn { display: none; width: 100%; padding: 12px; margin-top: 20px; background: #222; border: 1px solid var(--primary); color: white; font-weight: bold; border-radius: 8px; cursor: pointer; text-transform: uppercase; }
         #loadMoreBtn:active { background: var(--primary); }
+
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+        @keyframes pulse { 50% { opacity: 0.5; } }
     </style>
 </head>
 <body>
@@ -379,20 +391,17 @@
             startPagination('search', query, `Search: ${query}`);
         }
 
-        // --- SCHEDULE (GOD MODE FIX) ---
+        // --- SCHEDULE ---
         async function loadSchedule() {
             const d = new Date(); 
             d.setMonth(d.getMonth() - 1); // Only check animes that released an episode in the last 30 days
             const oneMonthAgo = d.toISOString().split('T')[0];
 
-            // THE GOD LOGIC: Any Japanese anime that had an episode in the last 1 month, sorted purely by All-Time Popularity!
-            // No strict first_air_date blocks, no vote_count blocks. Just pure trending popularity!
             const url = `${BASE}/discover/tv?api_key=${API_KEY}&with_genres=16&with_original_language=ja&air_date.gte=${oneMonthAgo}&sort_by=popularity.desc${STRICT_EXCLUDE}`;
 
             const res = await fetch(url);
             const data = await res.json();
             
-            // Final safety filter
             const safe = data.results.filter(a => a.poster_path && a.genre_ids && a.genre_ids.includes(16) && a.original_language === 'ja');
 
             const grid = document.getElementById('scheduleGrid');
@@ -444,13 +453,17 @@
         }
         function closeSelector() { document.getElementById('serverSelector').style.display = 'none'; }
         
+        // UPDATED: startPlayer with aniwaves.ru
         function startPlayer(type) {
             closeSelector();
             document.getElementById('connectingScreen').style.display = 'flex';
             setTimeout(() => {
                 document.getElementById('connectingScreen').style.display = 'none';
                 const q = encodeURIComponent(selectedAnimeName);
-                const url = type === 1 ? `https://aniwatchtv.to/search?keyword=${q}` : `https://watchanimeworld.net/?s=${q}`;
+                
+                // Server 1 changed to aniwaves.ru
+                const url = type === 1 ? `https://aniwaves.ru/filter?keyword=${q}` : `https://watchanimeworld.net/?s=${q}`;
+                
                 document.getElementById('playerModal').style.display = 'flex';
                 document.getElementById('iframe').src = url;
             }, 2000);
@@ -472,3 +485,4 @@
     </script>
 </body>
 </html>
+
